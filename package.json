@@ -1,0 +1,35 @@
+{
+  "name": "gulp-i18n-preprocess",
+  "version": "0.0.1",
+  "description": "Preprocess Polymer templates and extract UI strings to JSON for build-time I18N with i18n-behavior",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/t2ym/gulp-i18n-preprocess.git"
+  },
+  "keywords": [
+    "polymer",
+    "web-component",
+    "web-components",
+    "i18n",
+    "internationalization",
+    "gulp"
+  ],
+  "author": "Tetsuya Mori <t2y3141592@gmail.com>",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/t2ym/gulp-i18n-preprocess/issues"
+  },
+  "homepage": "https://github.com/t2ym/gulp-i18n-preprocess#readme",
+  "dependencies": {
+    "dom5": "^1.3.1",
+    "fs": "0.0.2",
+    "gulp-util": "^3.0.7",
+    "json-stringify-safe": "^5.0.1",
+    "path": "^0.12.7",
+    "through2": "^2.0.0"
+  }
+}
