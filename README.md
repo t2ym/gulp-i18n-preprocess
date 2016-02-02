@@ -49,7 +49,7 @@ Build tasks from source to dist:
 
 ### 5. Feedback task
 
-  - Update default and localized JSON files in source to commit them later by a developer
+  - Update default and localized JSON files in source to commit them later by a developer or a build system
 
 ## Usage
 
