@@ -9,6 +9,7 @@ Preprocess Polymer templates and extract UI strings to JSON for build-time I18N 
 - Embed the JSON to the target preprocessed templates as default strings
 - Export the JSON as files
 - Scan custom element HTMLs for constructing repository for I18N target attributes
+- Build-time functionalities in [gulp-i18n-preprocess](https://github.com/t2ym/gulp-i18n-preprocess) are in sync with those in [i18n-behavior](https://github.com/t2ym/i18n-behavior) at run-time
 
 ## Install
 
@@ -20,25 +21,25 @@ Preprocess Polymer templates and extract UI strings to JSON for build-time I18N 
 
 Build tasks from source to dist:
 
-1. Scan task
+### 1. Scan task
   - Scan source HTMLs for custom elements
   - Construct localizable attributes repository
-1. Preprocess task
+### 2. Preprocess task
   - Preprocess source HTMLs
   - Extract UI texts to JSON as default
   - Replace them with {{annotations}}
   - Embed default texts in HTMLs as JSON
   - Externalize default texts to JSON files
   - Put them in dist
-1. Leverage task with [gulp-i18n-leverage](https://github.com/t2ym/gulp-i18n-leverage) 
+### 3. Leverage task with [gulp-i18n-leverage](https://github.com/t2ym/gulp-i18n-leverage) 
   - Update localized JSON files by merging differences in default JSON from the previous build
   - Put them in dist
   - Merge all the UI texts into bundles object
-1. Bundles task with `fs.writeFileSync()`
+### 4. Bundles task with `fs.writeFileSync()`
   - Generate default bundled JSON file `bundle.json` from the bundles object
   - Generate per-locale bundled JSON files `bundle.*.json` from the bundles object
   - Put them in dist
-1. Feedback task
+### 5. Feedback task
   - Update default and localized JSON files in source to commit them later by a developer
 
 ## Usage
