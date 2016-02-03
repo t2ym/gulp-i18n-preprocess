@@ -20,8 +20,8 @@ module.exports = function(options) {
   var doPreprocess = function(file, enc, callback) {
     var stream = this;
     var replacingText = options ? !!options.replacingText : false;
-    var jsonSpace = options && options.jsonSpace ? options.jsonSpace : 2;
-    var srcPath = options && options.srcPath ? options.srcPath : 'app';
+    var jsonSpace = (options && options.jsonSpace !== undefined) ? options.jsonSpace : 2;
+    var srcPath = (options && options.srcPath !== undefined) ? options.srcPath : 'app';
     var force = options ? !!options.force : false;
     var dropHtml = options ? !!options.dropHtml : false;
     var constructAttributesRepository = options ? options.constructAttributesRepository : false;
