@@ -198,11 +198,11 @@ Output:
     gulp.task('bundles', function (callback) {
       var DEST_DIR = 'dist';
       var localesPath = DEST_DIR + '/locales';
-      var stats = fs.statSync(localesPath);
 
-      if (!(stats && stats.isDirectory())) {
+      try {
         fs.mkdirSync(localesPath);
       }
+      catch (e) {}
       for (var lang in bundles) {
         bundles[lang].bundle = true;
         if (lang) {
