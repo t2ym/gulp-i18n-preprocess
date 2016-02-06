@@ -284,6 +284,7 @@ Outputs are ready to commit in the repository
 - force: Boolean, default: false - Force preprocessing even if i18n-behavior.html is not imported
 - dropHtml: Boolean, default: false - If true, drop the preprocessed HTML for output
 - constructAttributesRepository: Boolean, default: false - If true, construct localizable attributes repository
+- attributesRepository: Object, default: {} - Input/Output - attributes respository object
 - attributesRepositoryPath: String, default: null - Path to bower_components/i18n-behavior/i18n-attr-repo.html
 
 ## License
