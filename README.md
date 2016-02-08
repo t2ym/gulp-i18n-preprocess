@@ -38,23 +38,23 @@ Project template available at [polymer-starter-kit-i18n](https://github.com/t2ym
 
 ### Change language on the demo
 
-#### 1. Press F12 to open debugger console on the browser
+1. Press F12 to open debugger console on the browser
 
-#### Option #1:
+Option #1:
 
-#### 2. Navigate to console tab in the debugger
+2. Navigate to console tab in the debugger
 
-#### 3. Type the following command 
+3. Type the following command 
 
 ```
     document.querySelector('html').lang = 'ja' // or 'fr'
 ```
 
-#### Option #2:
+Option #2:
 
-#### 4. Navigate to the elements or DOM tab in the debugger
+4. Navigate to the elements or DOM tab in the debugger
 
-#### 5. Change `lang` attribute of `html` element from "en" to "ja" or "fr"
+5. Change `lang` attribute of `html` element from "en" to "ja" or "fr"
 
 ```
     <html lang="ja">
@@ -62,7 +62,7 @@ Project template available at [polymer-starter-kit-i18n](https://github.com/t2ym
 
 ### Update UI strings on the demo
 
-#### 1. Change any UI strings in the following HTMLs
+1. Change any UI strings in the following HTMLs
 
 ```
     polymer-starter-kit-i18n/app/index.html
@@ -70,14 +70,14 @@ Project template available at [polymer-starter-kit-i18n](https://github.com/t2ym
                                 /elements/my-list/my-list.html
 ```
 
-#### 2. Merge changes into JSON files
+2. Merge changes into JSON files
 
 ```
     cd polymer-starter-kit-i18n
     gulp --dev
 ```
 
-#### 3. Check diffs
+3. Check diffs
 
 ```
     git diff app
