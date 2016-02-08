@@ -499,7 +499,7 @@ module.exports = function(options) {
               if (text.length === 0 || text.match(/^\s*$/g)) {
                 // skip empty or whitespace node
               }
-              else if (text.match(/^{{.*}}$/) || text.match(/^\[\[.*\]\]$/)) {
+              else if (text.trim().match(/^{{[^{}]*}}$/) || text.trim().match(/^\[\[[^\[\]]*\]\]$/)) {
                 // skip annotation node
               }
               else {
@@ -672,7 +672,7 @@ module.exports = function(options) {
           // skip empty or whitespace node
           isWhiteSpace = true;
         }
-        else if (text.match(/^{{.*}}$/) || text.match(/^\[\[.*\]\]$/)) {
+        else if (text.trim().match(/^{{[^{}]*}}$/) || text.trim().match(/^\[\[[^\[\]]*\]\]$/)) {
           // skip annotation node
         }
         else {
