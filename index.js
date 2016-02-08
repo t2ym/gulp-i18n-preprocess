@@ -507,7 +507,7 @@ module.exports = function(options) {
                 // generate message id
                 messageId = generateMessageId(path, id);
                 // store the text message
-                text = text.trim();
+                text = text.replace(/^[\s]*[\s]/, ' ').replace(/[\s][\s]*$/, ' ');
                 if (name === 'json-data') {
                   // parse json-data textContent
                   setBundleValue(bundle, messageId, JSON.parse(text));
@@ -610,7 +610,7 @@ module.exports = function(options) {
                         // textContent is untouched
                       }
                       else {
-                        prev.text.push(current.childTextNode.value.trim());
+                        prev.text.push(current.childTextNode.value.replace(/^[\s]*[\s]/, ' ').replace(/[\s][\s]*$/, ' '));
                         if (replacingText) {
                           current.childTextNode.value = '{{text.' + messageId + '.' + n + '}}';
                         }
@@ -625,7 +625,7 @@ module.exports = function(options) {
                   return prev;
                 }, { text: [ '' ], params: [ '{{text.' + messageId + '.0}}' ] });
               // store the text message
-              templateTextParams.text[0] = templateTextParams.text[0].trim();
+              templateTextParams.text[0] = templateTextParams.text[0].replace(/^[\s]*[\s]/, ' ').replace(/[\s][\s]*$/, ' ');
               setBundleValue(bundle, messageId, templateTextParams.text);
               //console.log(messageId + ' = ' + templateTextParams.text);
               if (replacingText) {
@@ -687,7 +687,7 @@ module.exports = function(options) {
           // generate message id
           messageId = generateMessageId(path, id);
           // store the text message
-          text = text.trim();
+          text = text.replace(/^[\s]*[\s]/, ' ').replace(/[\s][\s]*$/, ' ');
           setBundleValue(bundle, messageId, text);
           //console.log(messageId + ' = ' + text);
           if (replacingText) {
