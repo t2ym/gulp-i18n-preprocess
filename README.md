@@ -19,6 +19,58 @@ Project template available at [polymer-starter-kit-i18n](https://github.com/t2ym
     npm install --save-dev gulp-i18n-preprocess
 ```
 
+## Quick Tour
+
+### Quick demo deployment
+
+```
+    git clone https://github.com/t2ym/polymer-starter-kit-i18n.git
+    cd polymer-starter-kit-i18n
+    npm install -g gulp bower # if missing
+    npm install && bower install
+    # Development build with scan/preprocess/leverage/bundle/feedback tasks
+    gulp --dev
+    # Run-time I18N demo on http://localhost:5000
+    gulp serve
+    # Build-time I18N demo on http://localhost:5001
+    gulp serve:dist --dev
+```
+
+### Change language on the demo
+
+##### 1. Press F12 to open debugger console on the browser
+
+##### 2. Navigate to the elements or DOM tab in the debugger
+
+##### 3. Change `lang` attribute of `html` element from "en" to "ja" or "fr"
+
+```
+    <html lang="ja">
+```
+
+### Update UI strings on the demo
+
+##### 1. Change any UI strings in the following HTMLs
+
+```
+    polymer-starter-kit-i18n/app/index.html
+                                /elements/my-greeting/my-greeting.html
+                                /elements/my-list/my-list.html
+```
+
+##### 2. Merge changes into JSON files
+
+```
+    cd polymer-starter-kit-i18n
+    gulp --dev
+```
+
+##### 3. Check diffs
+
+```
+    git diff app
+```
+
 ## Workflow
 
 Build tasks from source to dist:
@@ -83,10 +135,12 @@ Sample to show default options:
 
 ### Scan task
 
-Input: 
+#### Note: Target HTMLs must import [i18n-behavior.html](https://github.com/t2ym/i18n-behavior) directly.
+
+#### Input: 
   - Custom element HTMLs in source
 
-Output: 
+#### Output: 
   - attributesRepository object in gulpfile.js
 
 ```javascript
@@ -113,10 +167,13 @@ Output:
 
 ### Preprocess task
 
-Input: 
-  - Custom element HTMLs and non-custom-element HTMLs in source
+#### Note: Target custom element HTMLs must import [i18n-behavior.html](https://github.com/t2ym/i18n-behavior) directly.
 
-Output: 
+#### Input: 
+  - Custom element HTMLs
+  - Non-custom-element HTMLs in source
+
+#### Output: 
   - Preprocessed HTMLs and default JSON files in dist
 
 ```javascript
@@ -155,12 +212,12 @@ Output:
 
 ### Leverage task with [gulp-i18n-leverage](https://github.com/t2ym/gulp-i18n-leverage)
 
-Input:
+#### Input:
   - Current localized JSON files in source
   - Current default JSON files in source
   - Next default JSON files in dist
 
-Output:
+#### Output:
   - Next localized JSON files in dist
   - Bundles object in gulpfile.js
 
@@ -184,10 +241,10 @@ Output:
 
 ### Bundles task
 
-Input: 
+#### Input: 
   - Bundles object in gulpfile.js
 
-Output: 
+#### Output: 
   - Bundles JSON files in dist
 
 ```javascript
@@ -222,12 +279,14 @@ Output:
 
 ### Feedback task
 
-Input:
+#### Note: Target custom element HTMLs must import [i18n-behavior.html](https://github.com/t2ym/i18n-behavior) directly.
+
+#### Input:
   - Next localized JSON files in dist
   - Custom element HTMLs
   - Non-custom-element HTMLs
 
-Output:
+#### Output:
   - Overwritten localized JSON files in source
   - Overwritten default JSON files in source
 
