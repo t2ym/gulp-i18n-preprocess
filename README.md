@@ -2,7 +2,7 @@
 
 Preprocess Polymer templates and extract UI strings to JSON for build-time I18N with [i18n-behavior](https://github.com/t2ym/i18n-behavior)
 
-![Conceptual Workflow](https://raw.githubusercontent.com/wiki/t2ym/i18n-behavior/PolymerI18nFlow.gif)
+![Build-Time I18N](https://raw.githubusercontent.com/wiki/t2ym/gulp-i18n-preprocess/BuildTimeI18nFlow.gif)
 
 ## Features
 
