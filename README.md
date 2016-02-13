@@ -2,7 +2,7 @@
 
 Preprocess Polymer templates and extract UI strings to JSON for build-time I18N with [i18n-behavior](https://github.com/t2ym/i18n-behavior)
 
-Project template available at [polymer-starter-kit-i18n](https://github.com/t2ym/polymer-starter-kit-i18n). On Github Pages (https://t2ym.github.io/polymer-starter-kit-i18n)
+![Conceptual Workflow](https://raw.githubusercontent.com/wiki/t2ym/i18n-behavior/PolymerI18nFlow.gif)
 
 ## Features
 
@@ -19,7 +19,7 @@ Project template available at [polymer-starter-kit-i18n](https://github.com/t2ym
     npm install --save-dev gulp-i18n-preprocess
 ```
 
-[Quick Tour](#quick-tour)
+[Quick Tour](#quick-tour) with [polymer-starter-kit-i18n](https://github.com/t2ym/polymer-starter-kit-i18n)
 
 ## Workflow
 
