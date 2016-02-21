@@ -142,7 +142,7 @@ Sample to show default options:
           jsonSpace: 2, // JSON format with 2 spaces
           srcPath: 'app', // path to source root
           attributesRepository: attributesRepository // input attributes repository
-        })))
+        }))
         .pipe(gulp.dest('dist/elements')); // output preprocessed HTMLs and default JSON files to dist
 
       var html = gulp.src([ 'app/**/*.html', '!app/{elements,test}/**/*.html' ]) // non-custom-element HTMLs
@@ -155,8 +155,7 @@ Sample to show default options:
          }))
         .pipe(gulp.dest('dist'));
 
-      return merge(elements, html)
-        .pipe($.size({title: 'copy'}));
+      return merge(elements, html);
     });
 ```
 
@@ -276,8 +275,7 @@ Outputs are ready to commit in the repository
         }))
         .pipe(gulp.dest('app'));
 
-      return merge(locales, elementDefault, appDefault)
-        .pipe($.size({title: 'feedback'}));
+      return merge(locales, elementDefault, appDefault);
     });
 ```
 
