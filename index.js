@@ -179,7 +179,6 @@ module.exports = function(options) {
       dom5.setAttribute(wrapperTemplate, 'id', 'localizable-text');
       for (var i = 0; i < template.childNodes.length; i++) {
         if (dom5.isDocumentFragment(template.childNodes[i])) {
-          dom5.append(template.childNodes[i], dom5.constructors.text('\n'));
           dom5.append(template.childNodes[i], wrapperTemplate);
           dom5.append(template.childNodes[i], dom5.constructors.text('\n'));
           break;
