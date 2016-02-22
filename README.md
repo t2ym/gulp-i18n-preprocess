@@ -241,7 +241,7 @@ Sample to show default options:
 
 Outputs are ready to commit in the repository
 
-```
+```javascript
     var gulp = require('gulp');
     var merge = require('merge-stream');
     var i18nPreprocess = require('gulp-i18n-preprocess');
