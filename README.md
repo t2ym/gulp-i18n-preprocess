@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/t2ym/gulp-i18n-preprocess.svg?branch=master)](https://travis-ci.org/t2ym/gulp-i18n-preprocess)
+
 # gulp-i18n-preprocess
 
 Preprocess Polymer templates and extract UI strings to JSON for build-time I18N with [i18n-behavior](https://github.com/t2ym/i18n-behavior)

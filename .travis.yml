@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+  - "0.12"
+  - "4"
+  - "5"
+sudo: false
+before_script:
+  - npm install
+  - npm install bower
+  - export PATH=$PWD/node_modules/.bin:$PATH
+  - bower install
