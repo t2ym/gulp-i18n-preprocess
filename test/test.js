@@ -307,11 +307,10 @@ suite('gulp-i18n-preprocess', function () {
                 callback(null, null);
               }));
           });
-          // gulp.run is deprecated but still works well
-          gulp.run('preprocess', function () {
+          gulp.start.apply(gulp, [ 'preprocess', function () {
             gulp.reset();
             done();
-          });
+          }]);
         });
       }
       else {
