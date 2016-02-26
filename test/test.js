@@ -12,6 +12,7 @@ var gutil = require('gulp-util');
 var stream = require('stream');
 var isStream = require('is-stream');
 var gulp = require('gulp');
+var debug = require('gulp-debug');
 
 var through = require('through2');
 var dom5 = require('dom5');
@@ -142,6 +143,8 @@ var attributesRepository_custom = p({
   }
 }, attributesRepository_standard);
 
+var attributesRepository_saved;
+
 var options_base = {
   replacingText: false,
   jsonSpace: 2,
@@ -184,6 +187,15 @@ function appendJson (list) {
   else {
     return list;
   }
+}
+
+function fromSaved () {
+  return attributesRepository_saved;
+}
+
+function toSaved (attrRepo) {
+  attributesRepository_saved = attrRepo;
+  return attributesRepository_custom;
 }
 
 var suites = [
@@ -235,6 +247,50 @@ var suites = [
   }),
   s('gulp i18n-dom-bind', 'i18n-dom-bind', {
     gulp: true
+  }),
+  // test with i18n-behavior test fixtures
+  // Note: Version of i18n-behavior must be carefully chosen in bower.json
+  //       so that actual outputs can be checked against the preprocessed output 
+  //       from a STABLE and TEST-PASSING i18n-behavior release.  Otherwise,
+  //       the following test suites would be meaningless because the expected outputs 
+  //       are actually just output by gulp-i18n-preprocess of an unstable version. 
+  s('gulp i18n-behavior/test/src scan', null, {
+    gulp: true,
+    options: p({
+      srcPath: 'bower_components/i18n-behavior/test/src',
+      dropHtml: true,
+      constructAttributesRepository: true,
+      attributesRepository: {},
+      attributesRepositoryPath: n2h('bower_components/i18n-behavior/i18n-attr-repo.html')
+    }, options_base),
+    srcBaseDir: 'bower_components/i18n-behavior/test/src',
+    targets: [ '**/*.html', '!**/*-test.html' ],
+    attributesRepository: toSaved
+  }),
+  s('gulp i18n-behavior/test/src preprocess', null, {
+    gulp: true,
+    options: p({
+      replacingText: true,
+      srcPath: 'bower_components/i18n-behavior/test/src',
+      dropHtml: false,
+      constructAttributesRepository: false,
+      attributesRepository: fromSaved
+    }, options_base),
+    srcBaseDir: 'bower_components/i18n-behavior/test/src',
+    targets: [ '**/*.html', '!**/*-test.html' ],
+    expectedBaseDir: 'bower_components/i18n-behavior/test/preprocess',
+    expected: null
+  }),
+  s('gulp i18n-behavior/test/src/*-test.html preprocess', 'gulp i18n-behavior/test/src preprocess', {
+    options: p({
+      replacingText: true,
+      srcPath: 'bower_components/i18n-behavior/test/src',
+      force: true,
+      dropHtml: false,
+      constructAttributesRepository: false,
+      attributesRepository: fromSaved
+    }, options_base),
+    targets: [ '**/*-test.html' ]
   })
 ];
 
@@ -254,10 +310,17 @@ suite('gulp-i18n-preprocess', function () {
 
     suite(params.suite, function () {
       suiteSetup(function () {
+        if (params.gulp && 
+          !params.options.constructAttributesRepository &&
+          typeof params.options.attributesRepository === 'function') {
+          options.attributesRepository = params.options.attributesRepository();
+        }
         preprocessor = i18nPreprocess(options);
         inputs = params.gulp ? 
           params.targets.map(function (target) {
-            return [ params.srcBaseDir, target ].join('/');
+            return target.match(/^!/) ? 
+              '!' + [ params.srcBaseDir, target.substr(1) ].join('/') :
+              [ params.srcBaseDir, target ].join('/')
           }) :
           params.targets.map(function (target) {
             return new gutil.File({
@@ -271,17 +334,19 @@ suite('gulp-i18n-preprocess', function () {
         if (typeof params.expected === 'function') {
           params.expected = params.expected(params.targets);
         }
-        expectedPaths = params.expected.map(function (outputPath) {
-          return path.join(params.expectedBaseDir, n2h(outputPath));
-        });
-        expected = expectedPaths.map(function (target) {
-          return new gutil.File({
-            cwd: __dirname,
-            base: path.join(__dirname, n2h(target)),
-            path: target,
-            contents: fs.readFileSync(target)
-          });
-        });
+        expectedPaths = params.expected ? 
+          params.expected.map(function (outputPath) {
+            return path.join(params.expectedBaseDir, n2h(outputPath));
+          }) : null;
+        expected = expectedPaths ? 
+          expectedPaths.map(function (target) {
+            return new gutil.File({
+              cwd: __dirname,
+              base: path.join(__dirname, n2h(target)),
+              path: target,
+              contents: fs.readFileSync(target)
+            })
+          }) : null;
         if (params.attributesRepository &&
             params.options && params.options.constructAttributesRepository) {
           attributesRepository = {};
@@ -302,6 +367,10 @@ suite('gulp-i18n-preprocess', function () {
                 assert.ok(file instanceof gutil.File, 'get a File instance for ' + file.path);
                 convertToExpectedPath(file, params.srcBaseDir, params.expectedBaseDir);
                 outputs.push(file);
+                callback(null, file);
+              }))
+              .pipe(debug({ title: 'preprocess output:'}))
+              .pipe(through.obj(function (file, enc, callback) {
                 callback(null, null);
               }));
           });
@@ -329,19 +398,36 @@ suite('gulp-i18n-preprocess', function () {
         });
       }
 
-      if (params.expected.length > 0) {
-        test('check preprocessed file list', function () {
-          outputs.forEach(function (file, index) {
-            assert.equal(file.path, expectedPaths[index], expectedPaths[index] + ' is output');
+      if ((params.expected && params.expected.length > 0) ||
+          !params.expected) {
+        if (params.expected) {
+          test('check preprocessed file list', function () {
+            outputs.forEach(function (file, index) {
+              assert.equal(file.path, expectedPaths[index], expectedPaths[index] + ' is output');
+            });
+            assert.equal(outputs.length, expectedPaths.length,
+              'get expected ' + expectedPaths.length + ' files');
           });
-          assert.equal(outputs.length, expectedPaths.length,
-            'get expected ' + expectedPaths.length + ' files');
-        });
+        }
 
         test('check preprocessed file contents', function () {
           outputs.forEach(function (file, index) {
-            assert.equal(file.contents.toString(), expected[index].contents.toString(),
-              'get expected file contents for ' + expected[index].path);
+            var expectedFile = expected ? expected[index] : null;
+            if (!expected) {
+              expectedFile = new gutil.File({
+                cwd: __dirname,
+                base: file.base,
+                path: file.path,
+                contents: fs.readFileSync(file.path)
+              });
+            }
+            if (file.contents.toString() !== expectedFile.contents.toString()) {
+              console.log('file.path = ' + file.path);
+              console.log('expected = ' + expectedFile.contents.toString());
+              console.log('actual = ' + file.contents.toString());
+            }
+            assert.equal(file.contents.toString(), expectedFile.contents.toString(),
+              'get expected file contents for ' + expectedFile.path);
           });
         });
       }
@@ -353,7 +439,17 @@ suite('gulp-i18n-preprocess', function () {
 
       if (params.attributesRepository) {
         test('check attributesRepository', function () {
-          assert.deepEqual(attributesRepository, params.attributesRepository, 'get an expected attributesRepository');
+          if (typeof params.attributesRepository === 'function') {
+            params.attributesRepository(JSON.parse(JSON.stringify(attributesRepository)));
+            assert.deepEqual(attributesRepository, 
+              params.attributesRepository(JSON.parse(JSON.stringify(attributesRepository))),
+              'get an expected attributesRepository');
+          }
+          else {
+            assert.deepEqual(attributesRepository,
+              params.attributesRepository,
+              'get an expected attributesRepository');
+          }
         });
       }
 

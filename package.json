@@ -33,6 +33,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "gulp": "^3.9.1",
+    "gulp-debug": "^2.1.2",
     "is-stream": "^1.0.1",
     "mocha": "^2.4.5"
   }
