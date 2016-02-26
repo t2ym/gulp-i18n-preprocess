@@ -126,6 +126,49 @@ var attributesRepository_standard = {
   }
 };
 
+var attributesRepository_standard = {
+  'input': {
+    'placeholder': true
+  },
+  'paper-input': {
+    'label': true,
+    'error-message': true,
+    'placeholder': true
+  },
+  'paper-textarea': {
+    'label': true,
+    'error-message': true,
+    'placeholder': true
+  },
+  'paper-dropdown-menu': {
+    'label': true
+  },
+  'paper-toast': {
+    'text': true
+  },
+  'google-chart': {
+    'options': true,
+    'cols': true,
+    'rows': true,
+    'data': true
+  },
+  'platinum-push-messaging': {
+    'title': true,
+    'message': true
+  },
+  'json-data': {
+    'any-attributes': true
+  }
+};
+
+var attributesRepository_custom = p({
+  'text-attribute-element': {
+    'custom-text-attr1': true,
+    'custom-text-attr2': true,
+    'custom-text-attr3': true
+  }
+}, attributesRepository_standard);
+
 var options_base = {
   replacingText: false,
   jsonSpace: 2,
@@ -182,6 +225,10 @@ var suites = [
     targets: [ 'simple-text-element.html' ],
     attributesRepository: attributesRepository_standard
   }),
+  s('scan custom', 'scan', {
+    targets: [ 'text-attribute-element.html' ],
+    attributesRepository: attributesRepository_custom
+  }),
   s('simple-text-element', null, {
     options: p({
       replacingText: true,
@@ -189,6 +236,20 @@ var suites = [
     }, options_base),
     targets: [ 'simple-text-element.html' ],
     expected: appendJson
+  }),
+  s('i18n-dom-bind', 'simple-text-element', {
+    options: p({
+      replacingText: true,
+      force: true,
+      attributesRepository: attributesRepository_custom
+    }, options_base),
+    targets: [ 'basic-test.html' ],
+    expected: [
+      'basic-test.html', 
+      'simple-text-dom-bind.json',
+      'simple-attribute-dom-bind.json',
+      'compound-binding-dom-bind.json'
+    ]
   })
 ];
 
@@ -270,6 +331,7 @@ suite('gulp-i18n-preprocess', function () {
 
         test('check preprocessed file contents', function () {
           outputs.forEach(function (file, index) {
+            fs.writeFileSync(path.join('/tmp', file.path), file.contents.toString());
             assert.equal(file.contents.toString(), expected[index].contents.toString(),
               'get expected file contents for ' + expected[index].path);
           });
