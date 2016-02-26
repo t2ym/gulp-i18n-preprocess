@@ -68,6 +68,29 @@ function n2h (target) {
   }
 }
 
+// Test suite inheritance utilities
+var p = Object.setPrototypeOf || function (target, base) { 
+  var obj = Object.create(base);
+  for (var p in target) {
+    obj[p] = target[p];
+  }
+  return obj;
+};
+var _name = 'suite';
+var suiteMap = {};
+var s = function (name, baseName, extension) {
+  if (suiteMap[name]) {
+    throw new Error('duplicate suite name ' + name);
+  }
+  if (baseName && !suiteMap[baseName]) {
+    throw new Error('inexistent base suite name ' + baseName);
+  }
+  extension[_name] = name;
+  extension = p(extension, suiteMap[baseName] || {});
+  suiteMap[name] = extension;
+  return extension;
+};
+
 var attributesRepository_standard = {
   'input': {
     'placeholder': true
@@ -103,43 +126,70 @@ var attributesRepository_standard = {
   }
 };
 
+var options_base = {
+  replacingText: false,
+  jsonSpace: 2,
+  srcPath: 'test/src',
+  force: false,
+  dropHtml: false,
+  constructAttributesRepository: false,
+  attributesRepository: attributesRepository_standard,
+  attributesRepositoryPath: null
+};
+
+var params_base = {
+  suite: null,
+  options: options_base,
+  srcBaseDir: 'test/src',
+  targets: [],
+  expectedBaseDir: 'test/expected',
+  expected: []
+};
+
+function appendJson (list) {
+  if (list && Array.isArray(list)) {
+    return list.map(function (item) {
+      if (typeof item === 'string') {
+        item = [ item, item.replace(/[.]html$/, '.json') ];
+      }
+      return item;
+    }).reduce(function (prev, curr) {
+      if (Array.isArray(curr)) {
+        curr.forEach(function (item) {
+          prev.push(item);
+        });
+      }
+      else {
+        prev.push(item);
+      }
+      return prev;
+    }, []);
+  }
+  else {
+    return list;
+  }
+}
+
 var suites = [
-  { 
-    suite: 'scan',
-    options: {
-      replacingText: false,
-      jsonSpace: 2,
-      srcPath: 'test/src',
-      force: false,
+  s(null, null, params_base),
+  s('scan', null, { 
+    options: p({
       dropHtml: true,
       constructAttributesRepository: true,
       attributesRepository: {},
       attributesRepositoryPath: n2h('bower_components/i18n-behavior/i18n-attr-repo.html')
-    },
-    srcBaseDir: 'test/src',
+    }, options_base),
     targets: [ 'simple-text-element.html' ],
-    expectedBaseDir: 'test/expected',
-    expected: [],
     attributesRepository: attributesRepository_standard
-  },
-  { 
-    suite: 'simple-text-element',
-    options: {
+  }),
+  s('simple-text-element', null, {
+    options: p({
       replacingText: true,
-      jsonSpace: 2,
-      srcPath: 'test/src',
-      force: false,
-      dropHtml: false,
-      constructAttributesRepository: false,
       attributesRepository: attributesRepository_standard,
-      attributesRepositoryPath: null
-    },
-    srcBaseDir: 'test/src',
+    }, options_base),
     targets: [ 'simple-text-element.html' ],
-    expectedBaseDir: 'test/expected',
-    expected: [ 'simple-text-element.html', 'simple-text-element.json' ],
-    attributesRepository: undefined
-  }
+    expected: appendJson
+  })
 ];
 
 suite('gulp-i18n-preprocess', function () {
@@ -151,6 +201,10 @@ suite('gulp-i18n-preprocess', function () {
     var expectedPaths;
     var expected;
     var attributesRepository;
+
+    if (!params.suite) {
+      return;
+    }
 
     suite(params.suite, function () {
       suiteSetup(function () {
@@ -164,6 +218,9 @@ suite('gulp-i18n-preprocess', function () {
           });
         });
         outputs = [];
+        if (typeof params.expected === 'function') {
+          params.expected = params.expected(params.targets);
+        }
         expectedPaths = params.expected.map(function (outputPath) {
           return path.join(params.expectedBaseDir, n2h(outputPath));
         });
