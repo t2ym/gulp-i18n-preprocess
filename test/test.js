@@ -4,6 +4,14 @@ Copyright (c) 2016, Tetsuya Mori <t2y3141592@gmail.com>. All rights reserved.
 */
 'use strict';
 
+// suppress gulp.run() deprecation warning
+console._warn = console.warn;
+console.warn = function (arg) {
+  if (!(typeof arg === 'string' && arg.startsWith('gulp.run()'))) {
+    console._warn.apply(this, arguments);
+  }
+};
+
 var chai = require('chai');
 var assert = chai.assert;
 var path = require('path');
@@ -11,6 +19,7 @@ var fs = require('fs');
 var gutil = require('gulp-util');
 var stream = require('stream');
 var isStream = require('is-stream');
+var gulp = require('gulp');
 
 var through = require('through2');
 var dom5 = require('dom5');
@@ -43,6 +52,13 @@ function convertToExpectedPath (file, srcBaseDir, expectedBaseDir) {
     if (file.path.substr(0, srcBaseDir.length) === srcBaseDir) {
       file.path = path.join(expectedBaseDir.replace(/\//g, path.sep),
                             file.path.substr(srcBaseDir.length));
+    }
+    else {
+      srcBaseDir = path.resolve(srcBaseDir);
+      if (file.path.substr(0, srcBaseDir.length) === srcBaseDir) {
+        file.path = path.join(expectedBaseDir.replace(/\//g, path.sep),
+                              file.path.substr(srcBaseDir.length));
+      }
     }
   }
   return file;
@@ -89,41 +105,6 @@ var s = function (name, baseName, extension) {
   extension = p(extension, suiteMap[baseName] || {});
   suiteMap[name] = extension;
   return extension;
-};
-
-var attributesRepository_standard = {
-  'input': {
-    'placeholder': true
-  },
-  'paper-input': {
-    'label': true,
-    'error-message': true,
-    'placeholder': true
-  },
-  'paper-textarea': {
-    'label': true,
-    'error-message': true,
-    'placeholder': true
-  },
-  'paper-dropdown-menu': {
-    'label': true
-  },
-  'paper-toast': {
-    'text': true
-  },
-  'google-chart': {
-    'options': true,
-    'cols': true,
-    'rows': true,
-    'data': true
-  },
-  'platinum-push-messaging': {
-    'title': true,
-    'message': true
-  },
-  'json-data': {
-    'any-attributes': true
-  }
 };
 
 var attributesRepository_standard = {
@@ -225,15 +206,26 @@ var suites = [
     targets: [ 'simple-text-element.html' ],
     attributesRepository: attributesRepository_standard
   }),
+  s('gulp scan', 'scan', {
+    gulp: true
+  }),
   s('scan custom', 'scan', {
     targets: [ 'text-attribute-element.html' ],
     attributesRepository: attributesRepository_custom
+  }),
+  s('gulp scan custom', 'scan custom', {
+    gulp: true
   }),
   s('simple-text-element', null, {
     options: p({
       replacingText: true,
       attributesRepository: attributesRepository_standard,
     }, options_base),
+    targets: [ 'simple-text-element.html' ],
+    expected: appendJson
+  }),
+  s('gulp simple-text-element', 'simple-text-element', {
+    gulp: true,
     targets: [ 'simple-text-element.html' ],
     expected: appendJson
   }),
@@ -250,6 +242,9 @@ var suites = [
       'simple-attribute-dom-bind.json',
       'compound-binding-dom-bind.json'
     ]
+  }),
+  s('gulp i18n-dom-bind', 'i18n-dom-bind', {
+    gulp: true
   })
 ];
 
@@ -270,14 +265,18 @@ suite('gulp-i18n-preprocess', function () {
     suite(params.suite, function () {
       suiteSetup(function () {
         preprocessor = i18nPreprocess(options);
-        inputs = params.targets.map(function (target) {
-          return new gutil.File({
-            cwd: __dirname,
-            base: path.join(__dirname, n2h(target)),
-            path: path.join(n2h(params.srcBaseDir), target),
-            contents: fs.readFileSync(path.join(n2h(params.srcBaseDir), target))
+        inputs = params.gulp ? 
+          params.targets.map(function (target) {
+            return [ params.srcBaseDir, target ].join('/');
+          }) :
+          params.targets.map(function (target) {
+            return new gutil.File({
+              cwd: __dirname,
+              base: path.join(__dirname, n2h(target)),
+              path: path.join(n2h(params.srcBaseDir), target),
+              contents: fs.readFileSync(path.join(n2h(params.srcBaseDir), target))
+            });
           });
-        });
         outputs = [];
         if (typeof params.expected === 'function') {
           params.expected = params.expected(params.targets);
@@ -304,21 +303,42 @@ suite('gulp-i18n-preprocess', function () {
         assert.ok(isStream.duplex(preprocessor), 'preprocessor is a duplex stream');
       });
 
-      test('get preprocessed files', function (done) {
-        preprocessor.on('data', function (file) {
-          assert.ok(file instanceof gutil.File, 'get a File instance for ' + file.path);
-          convertToExpectedPath(file, params.srcBaseDir, params.expectedBaseDir);
-          outputs.push(file);
+      if (params.gulp) {
+        test('preprocess in gulp', function (done) {
+          gulp.task('preprocess', function () {
+            return gulp.src(inputs, { base: params.srcBaseDir })
+              .pipe(preprocessor)
+              .pipe(through.obj(function (file, enc, callback) {
+                assert.ok(file instanceof gutil.File, 'get a File instance for ' + file.path);
+                convertToExpectedPath(file, params.srcBaseDir, params.expectedBaseDir);
+                outputs.push(file);
+                callback(null, null);
+              }));
+          });
+          // gulp.run is deprecated but still works well
+          gulp.run('preprocess', function () {
+            gulp.reset();
+            done();
+          });
         });
+      }
+      else {
+        test('get preprocessed files', function (done) {
+          preprocessor.on('data', function (file) {
+            assert.ok(file instanceof gutil.File, 'get a File instance for ' + file.path);
+            convertToExpectedPath(file, params.srcBaseDir, params.expectedBaseDir);
+            outputs.push(file);
+          });
 
-        preprocessor.on('end', done);
+          preprocessor.on('end', done);
 
-        inputs.forEach(function (file) {
-          preprocessor.write(file);
+          inputs.forEach(function (file) {
+            preprocessor.write(file);
+          });
+
+          preprocessor.end();
         });
-
-        preprocessor.end();
-      });
+      }
 
       if (params.expected.length > 0) {
         test('check preprocessed file list', function () {
@@ -350,6 +370,6 @@ suite('gulp-i18n-preprocess', function () {
 
       suiteTeardown(function () {
       });
-    })
+    });
   });
 });
