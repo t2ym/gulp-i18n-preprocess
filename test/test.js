@@ -48,6 +48,26 @@ function convertToExpectedPath (file, srcBaseDir, expectedBaseDir) {
   return file;
 }
 
+function n2h (target) {
+  if (path.sep === '/') {
+    return target;
+  }
+  if (target) {
+    if (Array.isArray(target)) {
+      return target.map(function (item) { return n2h(item); });
+    }
+    else if (typeof target === 'string') {
+      return target.replace(/\//g, path.sep);
+    }
+    else {
+      return target;
+    }
+  }
+  else {
+    return target;
+  }
+}
+
 var attributesRepository_standard = {
   'input': {
     'placeholder': true
@@ -94,7 +114,7 @@ var suites = [
       dropHtml: true,
       constructAttributesRepository: true,
       attributesRepository: {},
-      attributesRepositoryPath: 'bower_components/i18n-behavior/i18n-attr-repo.html'.replace(/\//g, path.sep)
+      attributesRepositoryPath: n2h('bower_components/i18n-behavior/i18n-attr-repo.html')
     },
     srcBaseDir: 'test/src',
     targets: [ 'simple-text-element.html' ],
@@ -138,19 +158,19 @@ suite('gulp-i18n-preprocess', function () {
         inputs = params.targets.map(function (target) {
           return new gutil.File({
             cwd: __dirname,
-            base: path.join(__dirname, target.replace(/\//g, path.sep)),
-            path: path.join(params.srcBaseDir.replace(/\//g, path.sep), target),
-            contents: fs.readFileSync(path.join(params.srcBaseDir.replace(/\//g, path.sep), target))
+            base: path.join(__dirname, n2h(target)),
+            path: path.join(n2h(params.srcBaseDir), target),
+            contents: fs.readFileSync(path.join(n2h(params.srcBaseDir), target))
           });
         });
         outputs = [];
         expectedPaths = params.expected.map(function (outputPath) {
-          return path.join(params.expectedBaseDir, outputPath.replace(/\//g, path.sep));
+          return path.join(params.expectedBaseDir, n2h(outputPath));
         });
         expected = expectedPaths.map(function (target) {
           return new gutil.File({
             cwd: __dirname,
-            base: path.join(__dirname, target.replace(/\//g, path.sep)),
+            base: path.join(__dirname, n2h(target)),
             path: target,
             contents: fs.readFileSync(target)
           });
