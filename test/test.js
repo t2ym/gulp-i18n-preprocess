@@ -217,9 +217,7 @@ var suites = [
     expected: appendJson
   }),
   s('gulp simple-text-element', 'simple-text-element', {
-    gulp: true,
-    targets: [ 'simple-text-element.html' ],
-    expected: appendJson
+    gulp: true
   }),
   s('i18n-dom-bind', 'simple-text-element', {
     options: p({
