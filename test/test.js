@@ -331,7 +331,6 @@ suite('gulp-i18n-preprocess', function () {
 
         test('check preprocessed file contents', function () {
           outputs.forEach(function (file, index) {
-            fs.writeFileSync(path.join('/tmp', file.path), file.contents.toString());
             assert.equal(file.contents.toString(), expected[index].contents.toString(),
               'get expected file contents for ' + expected[index].path);
           });
