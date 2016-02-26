@@ -4,14 +4,6 @@ Copyright (c) 2016, Tetsuya Mori <t2y3141592@gmail.com>. All rights reserved.
 */
 'use strict';
 
-// suppress gulp.run() deprecation warning
-console._warn = console.warn;
-console.warn = function (arg) {
-  if (!(typeof arg === 'string' && arg.startsWith('gulp.run()'))) {
-    console._warn.apply(this, arguments);
-  }
-};
-
 var chai = require('chai');
 var assert = chai.assert;
 var path = require('path');
