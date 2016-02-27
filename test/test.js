@@ -189,13 +189,9 @@ function appendJson (list) {
   }
 }
 
-function fromSaved () {
-  return attributesRepository_saved;
-}
-
-function toSaved (attrRepo) {
-  attributesRepository_saved = attrRepo;
-  return attributesRepository_custom;
+function fromExpected (expectedBaseDir) {
+  var buffer = fs.readFileSync(path.join(expectedBaseDir, 'attributes-repository.json'), 'utf8');
+  return JSON.parse(buffer.toString());
 }
 
 var suites = [
@@ -265,7 +261,8 @@ var suites = [
     }, options_base),
     srcBaseDir: 'bower_components/i18n-behavior/test/src',
     targets: [ '**/*.html', '!**/*-test.html' ],
-    attributesRepository: toSaved
+    expectedBaseDir: 'bower_components/i18n-behavior/test/preprocess',
+    attributesRepository: fromExpected
   }),
   s('gulp i18n-behavior/test/src preprocess', null, {
     gulp: true,
@@ -274,7 +271,7 @@ var suites = [
       srcPath: 'bower_components/i18n-behavior/test/src',
       dropHtml: false,
       constructAttributesRepository: false,
-      attributesRepository: fromSaved
+      attributesRepository: fromExpected
     }, options_base),
     srcBaseDir: 'bower_components/i18n-behavior/test/src',
     targets: [ '**/*.html', '!**/*-test.html' ],
@@ -288,7 +285,7 @@ var suites = [
       force: true,
       dropHtml: false,
       constructAttributesRepository: false,
-      attributesRepository: fromSaved
+      attributesRepository: fromExpected
     }, options_base),
     targets: [ '**/*-test.html' ]
   })
@@ -313,7 +310,7 @@ suite('gulp-i18n-preprocess', function () {
         if (params.gulp && 
           !params.options.constructAttributesRepository &&
           typeof params.options.attributesRepository === 'function') {
-          options.attributesRepository = params.options.attributesRepository();
+          options.attributesRepository = params.options.attributesRepository(params.expectedBaseDir);
         }
         preprocessor = i18nPreprocess(options);
         inputs = params.gulp ? 
@@ -439,17 +436,16 @@ suite('gulp-i18n-preprocess', function () {
 
       if (params.attributesRepository) {
         test('check attributesRepository', function () {
+          var expectedAttributesRepository;
           if (typeof params.attributesRepository === 'function') {
-            params.attributesRepository(JSON.parse(JSON.stringify(attributesRepository)));
-            assert.deepEqual(attributesRepository, 
-              params.attributesRepository(JSON.parse(JSON.stringify(attributesRepository))),
-              'get an expected attributesRepository');
+            expectedAttributesRepository = params.attributesRepository(params.expectedBaseDir);
           }
           else {
-            assert.deepEqual(attributesRepository,
-              params.attributesRepository,
-              'get an expected attributesRepository');
+            expectedAttributesRepository = params.attributesRepository;
           }
+          assert.deepEqual(attributesRepository,
+            expectedAttributesRepository,
+            'get expected attributesRepository');
         });
       }
 
