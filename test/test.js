@@ -40,19 +40,32 @@ chai.config.showDiff = true;
 */
 
 function convertToExpectedPath (file, srcBaseDir, expectedBaseDir) {
-  if (file && file.path && srcBaseDir && expectedBaseDir) {
+  var target;
+  if (file instanceof gutil.File) {
+    target = file.path;
+  }
+  else {
+    target = file;
+  }
+  if (target && srcBaseDir && expectedBaseDir) {
     srcBaseDir = srcBaseDir.replace(/\//g, path.sep);
-    if (file.path.substr(0, srcBaseDir.length) === srcBaseDir) {
-      file.path = path.join(expectedBaseDir.replace(/\//g, path.sep),
-                            file.path.substr(srcBaseDir.length));
+    if (target.substr(0, srcBaseDir.length) === srcBaseDir) {
+      target = path.join(expectedBaseDir.replace(/\//g, path.sep),
+                        target.substr(srcBaseDir.length));
     }
     else {
       srcBaseDir = path.resolve(srcBaseDir);
-      if (file.path.substr(0, srcBaseDir.length) === srcBaseDir) {
-        file.path = path.join(expectedBaseDir.replace(/\//g, path.sep),
-                              file.path.substr(srcBaseDir.length));
+      if (target.substr(0, srcBaseDir.length) === srcBaseDir) {
+        target = path.join(expectedBaseDir.replace(/\//g, path.sep),
+                          target.substr(srcBaseDir.length));
       }
     }
+  }
+  if (file instanceof gutil.File) {
+    file.path = target;
+  }
+  else {
+    file = target;
   }
   return file;
 }
@@ -276,7 +289,7 @@ var suites = [
     srcBaseDir: 'bower_components/i18n-behavior/test/src',
     targets: [ '**/*.html', '!**/*-test.html' ],
     expectedBaseDir: 'bower_components/i18n-behavior/test/preprocess',
-    expected: null
+    expected: appendJson
   }),
   s('gulp i18n-behavior/test/src/*-test.html preprocess', 'gulp i18n-behavior/test/src preprocess', {
     options: p({
@@ -287,7 +300,13 @@ var suites = [
       constructAttributesRepository: false,
       attributesRepository: fromExpected
     }, options_base),
-    targets: [ '**/*-test.html' ]
+    targets: [ '**/*-test.html' ],
+    expected: [
+      'basic-test.html', 
+      'simple-text-dom-bind.json',
+      'simple-attribute-dom-bind.json',
+      'compound-binding-dom-bind.json'
+    ]
   })
 ];
 
@@ -296,6 +315,7 @@ suite('gulp-i18n-preprocess', function () {
     var preprocessor;
     var options = params.options;
     var inputs;
+    var expandedInputPaths;
     var outputs;
     var expectedPaths;
     var expected;
@@ -328,22 +348,32 @@ suite('gulp-i18n-preprocess', function () {
             });
           });
         outputs = [];
-        if (typeof params.expected === 'function') {
-          params.expected = params.expected(params.targets);
+        if (params.expected) {
+          expectedPaths = undefined;
+          if (!params.gulp &&
+            typeof params.expected === 'function') {
+            expectedPaths = params.expected(params.targets).map(function (outputPath) {
+                return path.join(params.expectedBaseDir, n2h(outputPath));
+              });
+          }
+          else if (Array.isArray(params.expected)) {
+            expectedPaths = params.expected.map(function (outputPath) {
+                return path.join(params.expectedBaseDir, n2h(outputPath));
+              });
+          }
+          expected = expectedPaths ? 
+            expectedPaths.map(function (target) {
+              return new gutil.File({
+                cwd: __dirname,
+                base: path.join(__dirname, n2h(target)),
+                path: target,
+                contents: fs.readFileSync(target)
+              })
+            }) : null;
         }
-        expectedPaths = params.expected ? 
-          params.expected.map(function (outputPath) {
-            return path.join(params.expectedBaseDir, n2h(outputPath));
-          }) : null;
-        expected = expectedPaths ? 
-          expectedPaths.map(function (target) {
-            return new gutil.File({
-              cwd: __dirname,
-              base: path.join(__dirname, n2h(target)),
-              path: target,
-              contents: fs.readFileSync(target)
-            })
-          }) : null;
+        if (params.gulp) {
+          expandedInputPaths = [];
+        }
         if (params.attributesRepository &&
             params.options && params.options.constructAttributesRepository) {
           attributesRepository = {};
@@ -359,6 +389,10 @@ suite('gulp-i18n-preprocess', function () {
         test('preprocess in gulp', function (done) {
           gulp.task('preprocess', function () {
             return gulp.src(inputs, { base: params.srcBaseDir })
+              .pipe(through.obj(function (file, enc, callback) {
+                expandedInputPaths.push(file.path);
+                callback(null, file);
+              }))
               .pipe(preprocessor)
               .pipe(through.obj(function (file, enc, callback) {
                 assert.ok(file instanceof gutil.File, 'get a File instance for ' + file.path);
@@ -399,6 +433,20 @@ suite('gulp-i18n-preprocess', function () {
           !params.expected) {
         if (params.expected) {
           test('check preprocessed file list', function () {
+            if (params.gulp) {
+              if (typeof params.expected === 'function' &&
+                  expandedInputPaths) {
+                expectedPaths = params.expected(expandedInputPaths).map(function (target) {
+                  var result = convertToExpectedPath(target, params.srcBaseDir, params.expectedBaseDir);
+                  return result;
+                });
+              }
+              else if (Array.isArray(params.expected)) {
+                expectedPaths = params.expected.map(function (target) {
+                  return path.join(params.expectedBaseDir, target);
+                });
+              }
+            }
             outputs.forEach(function (file, index) {
               assert.equal(file.path, expectedPaths[index], expectedPaths[index] + ' is output');
             });
