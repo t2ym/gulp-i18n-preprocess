@@ -282,8 +282,6 @@ var suites = [
     options: p({
       replacingText: true,
       srcPath: 'bower_components/i18n-behavior/test/src',
-      dropHtml: false,
-      constructAttributesRepository: false,
       attributesRepository: fromExpected
     }, options_base),
     srcBaseDir: 'bower_components/i18n-behavior/test/src',
@@ -296,8 +294,6 @@ var suites = [
       replacingText: true,
       srcPath: 'bower_components/i18n-behavior/test/src',
       force: true,
-      dropHtml: false,
-      constructAttributesRepository: false,
       attributesRepository: fromExpected
     }, options_base),
     targets: [ '**/*-test.html' ],
