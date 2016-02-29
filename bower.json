@@ -25,6 +25,6 @@
     "tests"
   ],
   "devDependencies": {
-    "i18n-behavior": "~0.0.35"
+    "i18n-behavior": "~0.0.36"
   }
 }
