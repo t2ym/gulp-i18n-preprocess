@@ -545,34 +545,113 @@ module.exports = function(options) {
             // check if i18n-format is applicable
             var childStatus = Array.prototype.map.call(
               node.childNodes, function (child) {
-                return {
-                  hasText: dom5.isTextNode(child) && 
-                           child.value.length > 0 && 
-                           !child.value.match(/^\s*$/g), 
-                  hasCompoundAnnotatedText: dom5.isTextNode(child) &&
-                                            isCompoundAnnotatedText(child.value),
-                  hasTextChild: dom5.isElement(child) &&
-                                ((child.childNodes &&
-                                  child.childNodes.length === 1 &&
-                                  dom5.isTextNode(child.childNodes[0])) ||
-                                 !child.childNodes ||
-                                 (child.childNodes &&
-                                  child.childNodes.length === 0)), // including <br>
-                  hasCompoundAnnotatedChildNode: dom5.isElement(child) &&
-                                                 ((child.childNodes &&
-                                                   child.childNodes.length === 1 &&
-                                                   dom5.isTextNode(child.childNodes[0])) ||
-                                                  !child.childNodes ||
-                                                  (child.childNodes &&
-                                                   child.childNodes.length === 0)) &&
-                                                 isCompoundAnnotatedText(dom5.getTextContent(child)),
-                  hasGrandChildren: dom5.isElement(child) &&
-                                    child.childNodes.map(function (grandChild) {
-                                      return !dom5.isTextNode(grandChild);
-                                    }).reduce(function (prev, current) {
-                                      return prev || current;
-                                    }, false)
-                };
+                var result;
+                if (dom5.isElement(child) &&
+                    child.nodeName.toLowerCase() === 'template') {
+                  var templateNonCommentChildNodes =
+                    Array.prototype.filter.call(child.childNodes[0].childNodes, function (templateChild) {
+                      if (dom5.isCommentNode(templateChild)) {
+                        return false;
+                      }
+                      else if (dom5.isTextNode(templateChild)) {
+                        return !dom5.getTextContent(templateChild).match(/^\s*$/g);
+                      }
+                      else if (dom5.isElement(templateChild)) {
+                        return true;
+                      }
+                      else {
+                        return true;
+                      }
+                    });
+                  var firstChild = templateNonCommentChildNodes.shift();
+                  // Examples:
+                  // hasText: <template>text</template>
+                  // hasCompoundAnnotatedText: <template>{{item.name}} text</template>
+                  // hasTextChild: <template><b>text</b></template> or <template><br></template>
+                  // hasCompoundAnnotatedChildNode: <template><b>{{item.name}} text</b></template>
+                  // hasGrandChildren: <template><span><b>text</b></span></template> or
+                  //                   <template><b>A</b><i>B</i></template> or
+                  //                   hasCompoundAnnotatedText
+                  result = {
+                    hasText: templateNonCommentChildNodes.length === 0 &&
+                             firstChild &&
+                             dom5.isTextNode(firstChild) &&
+                             firstChild.value &&
+                             !firstChild.value.match(/^\s*$/g),
+                    hasCompoundAnnotatedText: firstChild &&
+                                              dom5.isTextNode(firstChild) &&
+                                              isCompoundAnnotatedText(firstChild.value),
+                    hasTextChild: templateNonCommentChildNodes.length === 0 &&
+                                  firstChild &&
+                                  dom5.isElement(firstChild) &&
+                                  ((firstChild.childNodes &&
+                                    firstChild.childNodes.length === 1 &&
+                                    dom5.isTextNode(firstChild.childNodes[0])) ||
+                                   !firstChild.childNodes ||
+                                   (firstChild.childNodes &&
+                                    firstChild.childNodes.length === 0)), // including <br>
+                    hasCompoundAnnotatedChildNode: firstChild &&
+                                                   dom5.isElement(firstChild) &&
+                                                   ((firstChild.childNodes &&
+                                                     firstChild.childNodes.length === 1 &&
+                                                     dom5.isTextNode(firstChild.childNodes[0])) ||
+                                                    !firstChild.childNodes ||
+                                                    (firstChild.childNodes &&
+                                                     firstChild.childNodes.length === 0)) &&
+                                                   isCompoundAnnotatedText(dom5.getTextContent(firstChild)),
+                    hasGrandChildren: templateNonCommentChildNodes.length > 0 ||
+                                      (firstChild &&
+                                       dom5.isElement(firstChild) &&
+                                        Array.prototype.map.call(
+                                          firstChild.childNodes,
+                                          function (grandChild) {
+                                            return !dom5.isTextNode(grandChild);
+                                          }
+                                        ).reduce(function (prev, current) {
+                                          return prev || current;
+                                        }, false)) ||
+                                      (firstChild &&
+                                       dom5.isTextNode(firstChild) &&
+                                       isCompoundAnnotatedText(dom5.getTextContent(firstChild)))
+                  };
+                }
+                else {
+                  result = {
+                    hasText: dom5.isTextNode(child) &&
+                             child.value.length > 0 &&
+                             !child.value.match(/^\s*$/g),
+                    hasCompoundAnnotatedText: dom5.isTextNode(child) &&
+                                              isCompoundAnnotatedText(child.value),
+                    hasTextChild: dom5.isElement(child) &&
+                                  ((child.childNodes &&
+                                    child.childNodes.length === 1 &&
+                                    dom5.isTextNode(child.childNodes[0])) ||
+                                   !child.childNodes ||
+                                   (child.childNodes &&
+                                    child.childNodes.length === 0)), // including <br>
+                    hasCompoundAnnotatedChildNode: dom5.isElement(child) &&
+                                                   ((child.childNodes &&
+                                                     child.childNodes.length === 1 &&
+                                                     dom5.isTextNode(child.childNodes[0])) ||
+                                                    !child.childNodes ||
+                                                    (child.childNodes &&
+                                                     child.childNodes.length === 0)) &&
+                                                   isCompoundAnnotatedText(dom5.getTextContent(child)),
+                    hasGrandChildren: dom5.isElement(child) &&
+                                      child.childNodes.map(function (grandChild) {
+                                        return !dom5.isTextNode(grandChild);
+                                      }).reduce(function (prev, current) {
+                                        return prev || current;
+                                      }, false)
+                  };
+                }
+                /*
+                console.log('child.nodeName = ' + child.nodeName);
+                console.log('child.textContent = ' + dom5.getTextContent(child));
+                console.log('child.id = ' + dom5.getAttribute(child, 'id'));
+                console.log('result = ' + JSONstringify(result, null, 2));
+                */
+                return result;
               }).reduce(function (prev, current) { 
                 return {
                   hasText: prev.hasText || current.hasText,
@@ -598,12 +677,14 @@ module.exports = function(options) {
               messageId = generateMessageId(path, id);
               templateTextParams = Array.prototype.map.call(
                 node.childNodes, function (child) {
+                  var firstChild;
                   if (dom5.isTextNode(child) &&
                       hasAnnotatedText(child.value)) {
                     return compoundAnnotationToSpan(child)
                       .map(function (_child) {
                         return {
                           node: _child,
+                          templateNode: null,
                           text: dom5.isTextNode(_child) ? 
                                   _child.value : null,
                           childTextNode: dom5.isElement(_child) &&
@@ -611,9 +692,35 @@ module.exports = function(options) {
                         };
                       });
                   }
+                  else if (dom5.isElement(child) &&
+                      child.nodeName.toLowerCase() === 'template') {
+                    firstChild =
+                      Array.prototype.filter.call(child.childNodes[0].childNodes, function (templateChild) {
+                        if (dom5.isCommentNode(templateChild)) {
+                          return false;
+                        }
+                        else if (dom5.isTextNode(templateChild)) {
+                          return !dom5.getTextContent(templateChild).match(/^\s*$/g);
+                        }
+                        else if (dom5.isElement(templateChild)) {
+                          return true;
+                        }
+                        else {
+                          return true;
+                        }
+                      }).shift();
+                    return [{
+                      node: firstChild,
+                      templateNode: child,
+                      type: firstChild.nodeType,
+                      text: null,
+                      childTextNode: true
+                    }];
+                  }
                   else {
                     return [{
                       node: child,
+                      templateNode: null,
                       text: dom5.isTextNode(child) ? 
                               child.value : null,
                       childTextNode: dom5.isElement(child) &&
@@ -622,6 +729,7 @@ module.exports = function(options) {
                   }
                 }).reduce(function (prev, currentList) {
                   var current;
+                  var textContent;
                   for (var i = 0; i < currentList.length; i++) {
                     current = currentList[i];
                     if (current.text) {
@@ -645,7 +753,7 @@ module.exports = function(options) {
                           prev.text.push('<' + current.node.nodeName.toLowerCase() + '>');
                           dom5.setTextContent(current.node, ' ');
                         }
-                        else if (textContent.match(/^({{.*}}|\[\[.*\]\])$/)) {
+                        else if (textContent.match(/^[\s]*({{.*}}|\[\[.*\]\])[\s]*$/)) {
                           // tag with annotation
                           prev.text.push(textContent);
                           // textContent is untouched
@@ -661,7 +769,39 @@ module.exports = function(options) {
                         prev.text.push('<' + current.node.nodeName.toLowerCase() + '>');
                       }
                       dom5.setAttribute(current.node, 'param', n.toString());
-                      prev.params.push(current.node);
+                      prev.params.push(current.templateNode || current.node);
+                    }
+                    else if (dom5.isTextNode(current.node) &&
+                             current.childTextNode) {
+                      // in template node
+                      n++;
+                      prev.text[0] += '{' + n + '}';
+                      textContent = dom5.getTextContent(current.node);
+                      if (textContent.length === 0) {
+                        // template without textContent
+                        prev.text.push('<template>');
+                        dom5.setTextContent(current.node, '');
+                      }
+                      else if (textContent.match(/^\s*$/g)) {
+                        // template with whitespace textContent
+                        prev.text.push('<template>');
+                        dom5.setTextContent(current.node, ' ');
+                      }
+                      else if (textContent.match(/^[\s]*({{.*}}|\[\[.*\]\])[\s]*$/)) {
+                        // tag with annotation
+                        prev.text.push(textContent);
+                        // textContent is untouched
+                      }
+                      else {
+                        prev.text.push(textContent.replace(/^[\s]*[\s]/, ' ').replace(/[\s][\s]*$/, ' '));
+                        dom5.setTextContent(current.node, '{{text.' + messageId + '.' + n + '}}');
+                      }
+                      span = dom5.constructors.element('span');
+                      dom5.setAttribute(span, 'param', n.toString());
+                      dom5.remove(current.node);
+                      dom5.append(span, current.node);
+                      dom5.append(current.templateNode.childNodes[0], span);
+                      prev.params.push(current.templateNode);
                     }
                   }
                   return prev;
