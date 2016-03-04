@@ -139,6 +139,11 @@ var attributesRepository_standard = {
     'rows': true,
     'data': true
   },
+  'google-signin': {
+    'label-signin': true,
+    'label-signout': true,
+    'label-additional': true
+  },
   'platinum-push-messaging': {
     'title': true,
     'message': true
@@ -182,7 +187,12 @@ function appendJson (list) {
   if (list && Array.isArray(list)) {
     return list.map(function (item) {
       if (typeof item === 'string') {
-        item = [ item, item.replace(/[.]html$/, '.json') ];
+        if (item.match(/no-template-element[.]html$/)) {
+          item = [ item ];
+        }
+        else {
+          item = [ item, item.replace(/[.]html$/, '.json') ];
+        }
       }
       return item;
     }).reduce(function (prev, curr) {
@@ -301,7 +311,9 @@ var suites = [
       'basic-test.html', 
       'simple-text-dom-bind.json',
       'simple-attribute-dom-bind.json',
-      'compound-binding-dom-bind.json'
+      'compound-binding-dom-bind.json',
+      'edge-case-test.html',
+      'multiple-case-test.html'
     ]
   })
 ];
