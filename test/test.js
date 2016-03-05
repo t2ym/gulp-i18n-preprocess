@@ -117,6 +117,9 @@ var attributesRepository_standard = {
   'input': {
     'placeholder': true
   },
+  'any-elements': {
+    'title': true
+  },
   'paper-input': {
     'label': true,
     'error-message': true,
