@@ -119,6 +119,10 @@ module.exports = function(options) {
         return !!attributesRepository[element]['any-attributes'] ||
                 !!attributesRepository[element][attr];
       }
+      else if (attributesRepository['any-elements'] &&
+               attributesRepository['any-elements'][attr]) {
+        return true;
+      }
       else {
         return false;
       }
