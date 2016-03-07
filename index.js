@@ -421,7 +421,9 @@ module.exports = function(options) {
                 }
               }
               else {
-                dom5.setTextContent(param, '{{text.' + messageId + '.' + n + '}}');
+                if (!parsedValue) {
+                  dom5.setTextContent(param, '{{text.' + messageId + '.' + n + '}}');
+                }
               }
             }
             else {
