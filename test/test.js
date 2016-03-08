@@ -118,7 +118,9 @@ var attributesRepository_standard = {
     'placeholder': true
   },
   'any-elements': {
-    'title': true
+    'title': true,
+    'aria-label': '$',
+    'aria-valuetext': '$'
   },
   'paper-input': {
     'label': true,
