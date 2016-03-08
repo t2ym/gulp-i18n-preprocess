@@ -116,12 +116,12 @@ module.exports = function(options) {
 
     function isLocalizableAttribute(element, attr) {
       if (attributesRepository['any-elements'] &&
-               attributesRepository['any-elements'][attr]) {
-        return true;
+          attributesRepository['any-elements'][attr]) {
+        return attributesRepository['any-elements'][attr];
       }
       else if (attributesRepository[element]) {
-        return !!attributesRepository[element]['any-attributes'] ||
-                !!attributesRepository[element][attr];
+        return attributesRepository[element]['any-attributes'] ||
+               attributesRepository[element][attr];
       }
       else {
         return false;
@@ -288,6 +288,7 @@ module.exports = function(options) {
       var text;
       var messageId;
       var attrId;
+      var isLocalizable;
       // pick up element attributes
       Array.prototype.forEach.call(node.attrs, function (attribute) {
         text = attribute.value;
@@ -307,7 +308,7 @@ module.exports = function(options) {
         case 'assetpath':
           break;
         default:
-          if (!isLocalizableAttribute(name, attribute.name)) {
+          if (!(isLocalizable = isLocalizableAttribute(name, attribute.name))) {
             //console.log('skipping <' + name + ' ' + attribute.name + '>');
             break;
           }
@@ -351,6 +352,9 @@ module.exports = function(options) {
             attrId = ['model', messageId, attribute.name].join('.');
             setBundleValue(bundle, attrId, text);
             if (replacingText) {
+              if (isLocalizable === '$') {
+                attribute.name = attribute.name + '$';
+              }
               attribute.value = '{{' + attrId + '}}';
             }
           }
