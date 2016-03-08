@@ -115,13 +115,13 @@ module.exports = function(options) {
     }
 
     function isLocalizableAttribute(element, attr) {
-      if (attributesRepository[element]) {
-        return !!attributesRepository[element]['any-attributes'] ||
-                !!attributesRepository[element][attr];
-      }
-      else if (attributesRepository['any-elements'] &&
+      if (attributesRepository['any-elements'] &&
                attributesRepository['any-elements'][attr]) {
         return true;
+      }
+      else if (attributesRepository[element]) {
+        return !!attributesRepository[element]['any-attributes'] ||
+                !!attributesRepository[element][attr];
       }
       else {
         return false;
