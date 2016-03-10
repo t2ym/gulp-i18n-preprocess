@@ -318,7 +318,9 @@ var suites = [
       'simple-attribute-dom-bind.json',
       'compound-binding-dom-bind.json',
       'edge-case-test.html',
-      'multiple-case-test.html'
+      'edge-case-dom-bind.json',
+      'multiple-case-test.html',
+      'template-default-lang-test.html'
     ]
   })
 ];
