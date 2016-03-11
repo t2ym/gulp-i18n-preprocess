@@ -9,5 +9,3 @@ before_script:
   - npm install bower
   - export PATH=$PWD/node_modules/.bin:$PATH
   - bower install
-scripts:
-  - ./test.sh
