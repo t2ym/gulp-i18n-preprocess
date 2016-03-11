@@ -4,7 +4,7 @@
   "description": "Preprocess Polymer templates and extract UI strings to JSON for build-time I18N with i18n-behavior",
   "main": "index.js",
   "scripts": {
-    "test": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcov -- -R spec",
+    "test": "./test.sh",
     "clean": "rm -rvf ./coverage"
   },
   "repository": {
