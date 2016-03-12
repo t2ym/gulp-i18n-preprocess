@@ -1056,14 +1056,17 @@ module.exports = function(options) {
               childNode = dom5.constructors.element('span');
               dom5.append(childNode, dom5.constructors.text(item));
             }
-            else {
+            else if (item) {
               childNode = dom5.constructors.text(item);
+            }
+            else {
+              childNode = null;
             }
             return childNode;
           });
         if (result.length > 0) {
           if (!result[result.length - 1]) {
-            result.pop(); // pop ''
+            result.pop(); // pop null node for ''
           }
         }
       }
