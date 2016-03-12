@@ -1096,6 +1096,7 @@ module.exports = function(options) {
       }
     }
 
+    /*
     function deepMap(target, source, map) {
       var value;
       for (var prop in source) {
@@ -1108,7 +1109,6 @@ module.exports = function(options) {
           break;
         case 'object':
           if (Array.isArray(value)) {
-            // TODO: cannot handle deep objects properly
             target[prop] = target[prop] || [];
             deepMap(target[prop], value, map);
           }
@@ -1117,17 +1117,13 @@ module.exports = function(options) {
             deepMap(target[prop], value, map);
           }
           break;
-        case 'function':
-        case 'symbol':
-        case 'undefined':
-          target[prop] = value;
-          break;
         default:
           target[prop] = value;
           break;
         }
       }
     }
+    */
 
     // TODO: shorten or optimize ids
     function generateMessageId(path, id) {
