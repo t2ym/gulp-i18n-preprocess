@@ -320,6 +320,8 @@ var suites = [
       'edge-case-test.html',
       'edge-case-dom-bind.json',
       'multiple-case-test.html',
+      'no-persist-test.html',
+      'preference-test.html',
       'template-default-lang-test.html'
     ]
   })
