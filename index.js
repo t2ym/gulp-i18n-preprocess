@@ -992,6 +992,7 @@ module.exports = function(options) {
     function compoundAnnotationToSpan (node) {
       var result;
       var textContent = dom5.getTextContent(node);
+      /* istanbul ignore else: node is prechecked to contain annotation(s) */
       if (textContent.match(/({{[^{}]*}}|\[\[[^\[\]]*\]\])/)) {
         result = textContent
           .match(/({{[^{}]*}}|\[\[[^\[\]]*\]\]|[^{}\[\]]{1,}|[{}\[\]]{1,})/g)
