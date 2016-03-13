@@ -41,7 +41,7 @@ chai.config.showDiff = true;
 
 function convertToExpectedPath (file, srcBaseDir, expectedBaseDir) {
   var target;
-  if (file instanceof gutil.File) {
+  if (file.path) {
     target = file.path;
   }
   else {
@@ -217,6 +217,10 @@ function appendJson (list) {
   }
 }
 
+function identical (list) {
+  return list;
+}
+
 function fromExpected (expectedBaseDir) {
   var buffer = fs.readFileSync(path.join(expectedBaseDir, 'attributes-repository.json'), 'utf8');
   return JSON.parse(buffer.toString());
@@ -253,6 +257,19 @@ var suites = [
     expected: appendJson
   }),
   s('gulp simple-text-element', 'simple-text-element', {
+    gulp: true
+  }),
+  s('missing-import-element', null, {
+    options: p({
+      replacingText: true,
+      attributesRepository: null,
+    }, options_base),
+    srcBaseDir: path.resolve('test/src'),
+    targets: [ 'missing-import-element.html' ],
+    expectedBaseDir: path.resolve('test/src'),
+    expected: identical
+  }),
+  s('gulp missing-import-element', 'missing-import-element', {
     gulp: true
   }),
   s('i18n-dom-bind', 'simple-text-element', {
@@ -412,7 +429,7 @@ suite('gulp-i18n-preprocess', function () {
               }))
               .pipe(preprocessor)
               .pipe(through.obj(function (file, enc, callback) {
-                assert.ok(file instanceof gutil.File, 'get a File instance for ' + file.path);
+                assert.ok(file.path, 'get a File instance for ' + file.path);
                 convertToExpectedPath(file, params.srcBaseDir, params.expectedBaseDir);
                 outputs.push(file);
                 callback(null, file);
@@ -431,7 +448,7 @@ suite('gulp-i18n-preprocess', function () {
       else {
         test('get preprocessed files', function (done) {
           preprocessor.on('data', function (file) {
-            assert.ok(file instanceof gutil.File, 'get a File instance for ' + file.path);
+            assert.ok(file.path, 'get a File instance for ' + file.path);
             convertToExpectedPath(file, params.srcBaseDir, params.expectedBaseDir);
             outputs.push(file);
           });
