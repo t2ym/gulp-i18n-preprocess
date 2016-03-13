@@ -283,6 +283,12 @@ var suites = [
     isNull: true,
     expected: identical
   }),
+  s('invalid attributesRepositoryPath', 'simple-text-element', {
+    options: p({
+      replacingText: true,
+      attributesRepositoryPath: 1,
+    }, options_base)
+  }),
   s('i18n-dom-bind', 'simple-text-element', {
     options: p({
       replacingText: true,
