@@ -874,28 +874,16 @@ module.exports = function(options) {
             messageId = generateMessageId(path, id);
             templateTextParams = Array.prototype.map.call(
               [ node ], function (child) {
-                if (dom5.isTextNode(child) &&
-                    hasAnnotatedText(child.value)) {
-                  return compoundAnnotationToSpan(child)
-                    .map(function (_child) {
-                      return {
-                        node: _child,
-                        text: dom5.isTextNode(_child) ? 
-                                _child.value : null,
-                        childTextNode: dom5.isElement(_child) &&
-                                       _child.childNodes.length > 0
-                      };
-                    });
-                }
-                else {
-                  return [{
-                    node: child,
-                    text: dom5.isTextNode(child) ? 
-                            child.value : null,
-                    childTextNode: dom5.isElement(child) &&
-                                   child.childNodes.length > 0
-                  }];
-                }
+                return compoundAnnotationToSpan(child)
+                  .map(function (_child) {
+                    return {
+                      node: _child,
+                      text: dom5.isTextNode(_child) ? 
+                              _child.value : null,
+                      childTextNode: dom5.isElement(_child) &&
+                                     _child.childNodes.length > 0
+                    };
+                  });
               }).reduce(function (prev, currentList) {
                 var current;
                 for (var i = 0; i < currentList.length; i++) {
@@ -909,33 +897,7 @@ module.exports = function(options) {
                     path.push(n);
                     traverseAttributes(current.node, path, bundle);
                     path.pop();
-                    if (current.childTextNode) {
-                      var textContent = dom5.getTextContent(current.node);
-                      if (textContent.length === 0) {
-                        // tag without innerText
-                        prev.text.push('<' + current.node.nodeName.toLowerCase() + '>');
-                        dom5.setTextContent(current.node, '');
-                      }
-                      else if (textContent.match(/^\s*$/g)) {
-                        // tag with whitespace innerText
-                        prev.text.push('<' + current.node.nodeName.toLowerCase() + '>');
-                        dom5.setTextContent(current.node, ' ');
-                      }
-                      else if (textContent.match(/^({{.*}}|\[\[.*\]\])$/)) {
-                        // tag with annotation
-                        prev.text.push(textContent);
-                        // textContent is untouched
-                      }
-                      else {
-                        prev.text.push(dom5.getTextContent(current.node).replace(/^[\s]*[\s]/, ' ').replace(/[\s][\s]*$/, ' '));
-                        if (replacingText) {
-                          dom5.setTextContent(current.node, '{{text.' + messageId + '.' + n + '}}');
-                        }
-                      }
-                    }
-                    else {
-                      prev.text.push('<' + current.node.nodeName.toLowerCase() + '>');
-                    }
+                    prev.text.push(dom5.getTextContent(current.node));
                     dom5.setAttribute(current.node, 'param', n.toString());
                     prev.params.push(current.node);
                   }
