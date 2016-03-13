@@ -185,7 +185,8 @@ var params_base = {
   srcBaseDir: 'test/src',
   targets: [],
   expectedBaseDir: 'test/expected',
-  expected: []
+  expected: [],
+  buffer: true
 };
 
 function appendJson (list) {
@@ -271,6 +272,12 @@ var suites = [
   }),
   s('gulp missing-import-element', 'missing-import-element', {
     gulp: true
+  }),
+  s('gulp no buffer', 'simple-text-element', {
+    gulp: true,
+    buffer: false,
+    expected: [],
+    throw: 'Streaming not supported'
   }),
   s('i18n-dom-bind', 'simple-text-element', {
     options: p({
@@ -422,12 +429,21 @@ suite('gulp-i18n-preprocess', function () {
       if (params.gulp) {
         test('preprocess in gulp', function (done) {
           gulp.task('preprocess', function () {
-            return gulp.src(inputs, { base: params.srcBaseDir })
+            return gulp.src(inputs, { base: params.srcBaseDir, buffer: params.buffer })
               .pipe(through.obj(function (file, enc, callback) {
                 expandedInputPaths.push(file.path);
                 callback(null, file);
               }))
               .pipe(preprocessor)
+              .on('error', function (err) {
+                if (params.throw) {
+                  assert.equal(err.message, params.throw, 'Throws ' + params.throw);
+                  done();
+                }
+                else {
+                  throw err;
+                }
+              })
               .pipe(through.obj(function (file, enc, callback) {
                 assert.ok(file.path, 'get a File instance for ' + file.path);
                 convertToExpectedPath(file, params.srcBaseDir, params.expectedBaseDir);
