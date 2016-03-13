@@ -33,10 +33,6 @@ module.exports = function(options) {
       options.attributesRepository = attributesRepository;
     }
 
-    if (file.isNull()) {
-      return callback(null, file);
-    }
-
     function loadAttributesRepository() {
       var i;
       if (attributesRepositoryPath) {
