@@ -717,13 +717,29 @@ module.exports = function(options) {
                           return true;
                         }
                       }).shift();
-                    return [{
-                      node: firstChild,
-                      templateNode: child,
-                      type: firstChild.nodeType,
-                      text: null,
-                      childTextNode: true
-                    }];
+                    if (!firstChild) {
+                      firstChild =
+                        Array.prototype.filter.call(child.childNodes[0].childNodes, function (templateChild) {
+                          if (dom5.isCommentNode(templateChild)) {
+                            return false;
+                          }
+                          else {
+                            return true;
+                          }
+                        }).shift();
+                    }
+                    if (firstChild) {
+                      return [{
+                        node: firstChild,
+                        templateNode: child,
+                        type: firstChild.nodeType,
+                        text: null,
+                        childTextNode: true
+                      }];
+                    }
+                    else {
+                      return [];
+                    }
                   }
                   else {
                     return [{
