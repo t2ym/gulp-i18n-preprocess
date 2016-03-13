@@ -229,7 +229,7 @@ var suites = [
       dropHtml: true,
       constructAttributesRepository: true,
       attributesRepository: {},
-      attributesRepositoryPath: n2h('bower_components/i18n-behavior/i18n-attr-repo.html')
+      attributesRepositoryPath: [ n2h('bower_components/i18n-behavior/i18n-attr-repo.html') ]
     }, options_base),
     targets: [ 'simple-text-element.html' ],
     attributesRepository: attributesRepository_standard
