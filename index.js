@@ -713,6 +713,7 @@ module.exports = function(options) {
                         else if (dom5.isTextNode(templateChild)) {
                           return !dom5.getTextContent(templateChild).match(/^\s*$/g);
                         }
+                        /* istanbul ignore else: difficult to insert non-comment, non-text, and non-element nodes */
                         else if (dom5.isElement(templateChild)) {
                           return true;
                         }
