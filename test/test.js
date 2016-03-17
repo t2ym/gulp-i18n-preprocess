@@ -122,6 +122,9 @@ var attributesRepository_standard = {
     'aria-label': '$',
     'aria-valuetext': '$'
   },
+  "paper-badge": {
+    "label": true
+  },
   'paper-input': {
     'label': true,
     'error-message': true,
