@@ -326,7 +326,7 @@ var suites = [
     }, options_base),
     srcBaseDir: 'bower_components/i18n-behavior/test/src',
     targets: [ '**/*.html', '!**/*-test.html' ],
-    expectedBaseDir: 'bower_components/i18n-behavior/test/preprocess',
+    expectedBaseDir: 'bower_components/i18n-behavior/test/preprocess-raw',
     attributesRepository: fromExpected
   }),
   s('gulp i18n-behavior/test/src preprocess', null, {
@@ -338,7 +338,7 @@ var suites = [
     }, options_base),
     srcBaseDir: 'bower_components/i18n-behavior/test/src',
     targets: [ '**/*.html', '!**/*-test.html' ],
-    expectedBaseDir: 'bower_components/i18n-behavior/test/preprocess',
+    expectedBaseDir: 'bower_components/i18n-behavior/test/preprocess-raw',
     expected: appendJson
   }),
   s('gulp i18n-behavior/test/src/*-test.html preprocess', 'gulp i18n-behavior/test/src preprocess', {
