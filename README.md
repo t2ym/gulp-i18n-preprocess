@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/t2ym/gulp-i18n-preprocess.svg?branch=master)](https://travis-ci.org/t2ym/gulp-i18n-preprocess)
 [![Coverage Status](https://coveralls.io/repos/github/t2ym/gulp-i18n-preprocess/badge.svg?branch=master&build=50)](https://coveralls.io/github/t2ym/gulp-i18n-preprocess?branch=master)
+[![npm](https://img.shields.io/npm/v/gulp-i18n-preprocess.svg)](https://www.npmjs.com/package/gulp-i18n-preprocess)
 
 # gulp-i18n-preprocess
 
