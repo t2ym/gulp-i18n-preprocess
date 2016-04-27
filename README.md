@@ -76,7 +76,8 @@ Sample to show default options:
         jsonSpace: 2, // JSON stringification parameter for formatting
         srcPath: 'app', // base source path
         force: false, // does not force preprocessing when i18n-behavior.html is not imported
-        dropHtml: false, // drop the preprocessed HTML for output
+        dropHtml: false, // does not drop the preprocessed HTML for output
+        dropJson: false, // does not drop the extracted JSON files for output
         constructAttributesRepository: false, // does not construct localizable attributes repository
         attributesRepositoryPath: null // does not specify the path to i18n-attr-repo.html
       };
@@ -294,6 +295,7 @@ Outputs are ready to commit in the repository
 - srcPath: String, default: 'app' - Path to source root
 - force: Boolean, default: false - Force preprocessing even if i18n-behavior.html is not imported
 - dropHtml: Boolean, default: false - If true, drop the preprocessed HTML for output
+- dropJson: Boolean, default: false - If true, drop the extracted JSON files for output
 - constructAttributesRepository: Boolean, default: false - If true, construct localizable attributes repository
 - attributesRepository: Object, default: {} - Input/Output - attributes respository object
 - attributesRepositoryPath: String, default: null - Path to bower_components/i18n-behavior/i18n-attr-repo.html
