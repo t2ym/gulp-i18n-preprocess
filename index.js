@@ -24,6 +24,7 @@ module.exports = function(options) {
     var srcPath = (options && options.srcPath !== undefined) ? options.srcPath : 'app';
     var force = options ? !!options.force : false;
     var dropHtml = options ? !!options.dropHtml : false;
+    var dropJson = options ? !!options.dropJson : false;
     var constructAttributesRepository = options ? options.constructAttributesRepository : false;
     var attributesRepositoryPath = options ? options.attributesRepositoryPath : null;
     var attributesRepositoryTemplates = [];
@@ -1169,7 +1170,7 @@ module.exports = function(options) {
         var result = constructMessageBundle(file, contents, bundles, status);
         var moduleId;
         if (status.localizable && !constructAttributesRepository) {
-          var splitFiles = getFilenames(file.path, bundles);
+          var splitFiles = getFilenames(file.path, dropJson ? {} : bundles);
           var splitContents = { html: result };
           for (moduleId in bundles) {
             splitContents[moduleId] = JSONstringify(bundles[moduleId], null, jsonSpace); 
