@@ -263,6 +263,18 @@ var suites = [
   s('gulp simple-text-element', 'simple-text-element', {
     gulp: true
   }),
+  s('simple-text-element dropJson', null, {
+    options: p({
+      replacingText: true,
+      dropJson: true,
+      attributesRepository: attributesRepository_standard,
+    }, options_base),
+    targets: [ 'simple-text-element.html' ],
+    expected: identical
+  }),
+  s('gulp simple-text-element dropJson', 'simple-text-element dropJson', {
+    gulp: true
+  }),
   s('missing-import-element', null, {
     options: p({
       replacingText: true,
