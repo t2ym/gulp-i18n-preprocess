@@ -314,7 +314,7 @@ Outputs are ready to commit in the repository
 #### Gulp task:
   - `gulp locales --targets="{space separated list of target locales}"`
 
-#### gulpfile.js: Put it in the root folder of the project
+#### [gulpfile.js](https://gist.github.com/t2ym/c37990e422d4a19774ba1d749510c1b8#file-gulpfile-js): Put it in the root folder of the project
 ```javascript
     var gulp = require('gulp');
     var gutil = require('gulp-util');
