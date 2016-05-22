@@ -295,13 +295,14 @@ Outputs are ready to commit in the repository
     npm init # if package.json is missing
     npm install --save-dev gulp gulp-debug gulp-grep-contents \
       gulp-i18n-add-locales gulp-i18n-leverage gulp-i18n-preprocess \
-      gulp-if gulp-match gulp-merge gulp-size gulp-sort gulp-util \
+      gulp-if gulp-ignore gulp-match gulp-merge gulp-size gulp-sort gulp-util \
       json-stringify-safe strip-bom through2 xliff-conv
 ```
 
 #### User Transformers:
   - scan - Scan HTMLs and construct localizable attributes repository
   - basenameSort - Sort source files according to their base names; Bundle files come first.
+  - dropDefaultJSON - Drop default JSON files to avoid overwriting new ones 
   - preprocess - Preprocess Polymer templates for I18N
   - tmpJSON - Store extracted JSON in the temporary folder .tmp
   - importXliff - Import XLIFF into JSON
@@ -320,6 +321,7 @@ Outputs are ready to commit in the repository
     var gutil = require('gulp-util');
     var debug = require('gulp-debug');
     var gulpif = require('gulp-if');
+    var gulpignore = require('gulp-ignore');
     var gulpmatch = require('gulp-match');
     var sort = require('gulp-sort');
     var grepContents = require('gulp-grep-contents');
@@ -361,6 +363,8 @@ Outputs are ready to commit in the repository
         return base1.localeCompare(base2);
       }
     });
+
+    var dropDefaultJSON = gulpignore([ 'src/**/*.json', '!**/locales/*.json' ]);
 
     var preprocess = gulpif('*.html', i18nPreprocess({
       replacingText: true, // replace UI texts with {{annotations}}
@@ -496,6 +500,7 @@ Outputs are ready to commit in the repository
       transformers: [
         scan,
         basenameSort,
+        dropDefaultJSON,
         preprocess,
         tmpJSON,
         importXliff,
