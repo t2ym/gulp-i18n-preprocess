@@ -43,19 +43,23 @@ Build tasks from source to dist:
   - Externalize default texts to JSON files
   - Put them in dist
 
-### 3. Leverage task with [gulp-i18n-leverage](https://github.com/t2ym/gulp-i18n-leverage) 
+### 3. (Optional) Import XLIFF task with [xliff-conv](https://github.com/t2ym/xliff-conv)
+
+### 4. Leverage task with [gulp-i18n-leverage](https://github.com/t2ym/gulp-i18n-leverage) 
 
   - Update localized JSON files by merging differences in default JSON from the previous build
   - Put them in dist
   - Merge all the UI texts into bundles object
 
-### 4. Bundles task with `fs.writeFileSync()`
+### 5. Bundles task with `fs.writeFileSync()`
 
   - Generate default bundled JSON file `bundle.json` from the bundles object
   - Generate per-locale bundled JSON files `bundle.*.json` from the bundles object
   - Put them in dist
 
-### 5. Feedback task
+### 6. (Optional) Export XLIFF task with [xliff-conv](https://github.com/t2ym/xliff-conv)
+
+### 7. Feedback task
 
   - Update default and localized JSON files in source to commit them later by a developer or a build system
 
