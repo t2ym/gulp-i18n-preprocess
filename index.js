@@ -27,16 +27,16 @@ module.exports = function(options) {
     var dropJson = options ? !!options.dropJson : false;
     var constructAttributesRepository = options ? options.constructAttributesRepository : false;
     var attributesRepositoryPath = options ? options.attributesRepositoryPath : null;
-    var attributesRepositoryTemplates = [];
     var attributesRepository = options ? options.attributesRepository : {};
 
     if (options && !attributesRepository) {
       options.attributesRepository = attributesRepository;
     }
 
-    function loadAttributesRepository() {
+    function loadAttributesRepository(template) {
+      var attributesRepositoryTemplates = [];
       var i;
-      if (attributesRepositoryPath) {
+      if (attributesRepositoryPath && !template) {
         if (typeof attributesRepositoryPath === 'string') {
           attributesRepositoryPath = [ attributesRepositoryPath ];
         }
@@ -45,7 +45,6 @@ module.exports = function(options) {
         else {
           return;
         }
-        attributesRepositoryTemplates = [];
         for (i = 0; i < attributesRepositoryPath.length; i++) {
           try {
             var contents = fs.readFileSync(attributesRepositoryPath[i], 'utf8');
@@ -71,13 +70,20 @@ module.exports = function(options) {
           catch (e) {
           }
         }
+      }
+      else if (template) {
+        // custom attributes repository
+        attributesRepositoryTemplates.push(template);
+      }
+      if (attributesRepositoryTemplates.length > 0) {
         for (i = 0; i < attributesRepositoryTemplates.length; i++) {
           var dummy = [];
           dom5.nodeWalkAll(attributesRepositoryTemplates[i], function (node) {
             var tag, attr, attrValue;
             var i;
             if (dom5.predicates.hasTagName('template')(node) &&
-                dom5.getAttribute(node, 'id') === 'standard') {
+                (dom5.getAttribute(node, 'id') === 'standard' ||
+                 dom5.getAttribute(node, 'id') === 'custom')) {
               // skip template itself
             }
             else {
@@ -224,6 +230,7 @@ module.exports = function(options) {
             case 'body':
             case 'head':
             case 'html':
+            case 'i18n-attr-repo':
               return true;
             default:
               return false;
@@ -238,6 +245,17 @@ module.exports = function(options) {
           bundle = { meta: {}, model: {} };
           path = [];
           var moduleId = dom5.getAttribute(templates[i], 'id');
+          var isCustomAttributesRepository =
+            templates[i].parentNode &&
+            templates[i].parentNode.tagName &&
+            templates[i].parentNode.tagName.toLowerCase() === 'i18n-attr-repo' &&
+            moduleId === 'custom';
+          if (isCustomAttributesRepository) {
+            if (constructAttributesRepository) {
+              loadAttributesRepository(templates[i]);
+            }
+            continue;
+          }
           if (moduleId) {
             var dirname = file.dirname || file.base.substr(0, -1);
             var assetpath = dirname.substr(file.cwd.length + srcPath.length + 1) + '/';
