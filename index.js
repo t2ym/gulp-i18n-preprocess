@@ -308,19 +308,10 @@ module.exports = function(options) {
       Array.prototype.forEach.call(node.attrs, function (attribute) {
         text = attribute.value;
         switch (attribute.name) {
-        // TODO: need more research on the list of excluded attributes
         case 'id':
         case 'text-id':
         case 'is':
         case 'lang':
-        case 'class':
-        case 'href':
-        case 'src':
-        case 'style':
-        case 'url':
-        case 'value':
-        case 'selected':
-        case 'assetpath':
           break;
         default:
           if (!(isLocalizable = isLocalizableAttribute(name, attribute.name))) {
