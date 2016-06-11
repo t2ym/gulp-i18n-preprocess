@@ -118,13 +118,14 @@ module.exports = function(options) {
     }
 
     function isLocalizableAttribute(element, attr) {
+      var tagName = element.nodeName.toLowerCase();
       if (attributesRepository['any-elements'] &&
           attributesRepository['any-elements'][attr]) {
         return attributesRepository['any-elements'][attr];
       }
-      else if (attributesRepository[element]) {
-        return attributesRepository[element]['any-attributes'] ||
-               attributesRepository[element][attr];
+      else if (attributesRepository[tagName]) {
+        return attributesRepository[tagName]['any-attributes'] ||
+               attributesRepository[tagName][attr];
       }
       else {
         return false;
@@ -314,7 +315,7 @@ module.exports = function(options) {
         case 'lang':
           break;
         default:
-          if (!(isLocalizable = isLocalizableAttribute(name, attribute.name))) {
+          if (!(isLocalizable = isLocalizableAttribute(node, attribute.name))) {
             //console.log('skipping <' + name + ' ' + attribute.name + '>');
             break;
           }
