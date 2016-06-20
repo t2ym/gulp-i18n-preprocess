@@ -314,6 +314,12 @@ module.exports = function(options) {
         case 'is':
         case 'lang':
         case 'class':
+        // verification required before removing these attributes
+        case 'href':
+        case 'src':
+        case 'style':
+        case 'url':
+        case 'selected':
           break;
         default:
           if (!(isLocalizable = isLocalizableAttribute(node, attribute.name))) {
