@@ -313,6 +313,7 @@ module.exports = function(options) {
         case 'text-id':
         case 'is':
         case 'lang':
+        case 'class':
           break;
         default:
           if (!(isLocalizable = isLocalizableAttribute(node, attribute.name))) {
