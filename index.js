@@ -97,12 +97,7 @@ module.exports = function(options) {
                     if (attr) {
                       attr = attr.toLowerCase();
                       attrValue = node.attrs[i].value;
-                      if (attrValue) {
-                        attributesRepository[tag][attr] = attrValue;
-                      }
-                      else {
-                        attributesRepository[tag][attr] = true;
-                      }
+                      setLocalizableAttribute(tag, attr, attrValue);
                     }
                   }
                 }
@@ -125,16 +120,123 @@ module.exports = function(options) {
       }
       else if (attributesRepository[tagName]) {
         return attributesRepository[tagName]['any-attributes'] ||
-               attributesRepository[tagName][attr];
+               getType(element, attributesRepository[tagName][attr]);
       }
       else {
         return false;
       }
     }
 
+    function getType(element, value) {
+      var selector;
+      var result;
+      if (typeof value === 'object') {
+        for (selector in value) {
+          if (selector) {
+            if (matchAttribute(element, selector)) {
+              result = getType(element, value[selector]);
+              if (result) {
+                return result;
+              }
+            }
+          }
+        }
+        if (value['']) {
+          if (matchAttribute(element, '')) {
+            result = getType(element, value['']);
+            if (result) {
+              return result;
+            }
+          }
+        }
+        return false;
+      }
+      else {
+        return value;
+      }
+    }
+
+    function matchAttribute(element, selector) {
+      var value;
+      var match;
+      // default ''
+      if (selector === '') {
+        return true;
+      }
+      // attr=value Regex ^value$
+      match = selector.match(/^([^!=]*)=(.*)$/);
+      if (match) {
+        if (dom5.hasAttribute(element, match[1])) {
+          value = dom5.getAttribute(element, match[1]);
+          return !!value.match(new RegExp('^' + match[2] + '$'));
+        }
+        else {
+          return false;
+        }
+      }
+      // !boolean-attr
+      match = selector.match(/^!([^!=]*)$/);
+      if (match) {
+        return !dom5.hasAttribute(element, match[1]);
+      }
+      // boolean-attr or empty-attr
+      match = selector.match(/^([^!=]*)$/);
+      if (match) {
+        if (dom5.hasAttribute(element, match[1])) {
+          value = dom5.getAttribute(element, match[1]);
+          return !value;
+        }
+        else {
+          return false;
+        }
+      }
+      // no matching
+      return false;
+    }
+
+    function compareSelectors(s1, s2) {
+      var name1 = s1.replace(/^!/, '').replace(/=.*$/, '').toLowerCase();
+      var name2 = s2.replace(/^!/, '').replace(/=.*$/, '').toLowerCase();
+      return name1.localeCompare(name2);
+    }
+
     function setLocalizableAttribute(element, attr, value) {
       attributesRepository[element] = attributesRepository[element] || {};
-      attributesRepository[element][attr] = value ? value : true;
+      var cursor = attributesRepository[element];
+      var prev = attr;
+      var type = true;
+      var selectors = [];
+
+      if (typeof value === 'string' && value) {
+        selectors = value.split(',');
+        if (selectors[selectors.length - 1].match(/^[^!=][^=]*$/)) {
+          type = selectors.pop();
+        }
+        selectors = selectors.map(function (selector) {
+          return selector.replace(/=$/, '');
+        });
+        selectors.sort(compareSelectors);
+        while (selectors[0] === '') {
+          selectors.shift();
+        }
+      }
+
+      selectors.forEach(function (selector, index) {
+        if (typeof cursor[prev] !== 'object') {
+          cursor[prev] = cursor[prev] ? { '': cursor[prev] } : {};
+        }
+        cursor[prev][selector] = cursor[prev][selector] || {};
+        cursor = cursor[prev];
+        prev = selector;
+      });
+
+      if (typeof cursor[prev] === 'object' &&
+          cursor[prev] &&
+          Object.keys(cursor[prev]).length) {
+        cursor = cursor[prev];
+        prev = '';
+      }
+      cursor[prev] = type;
     }
 
     // register localizable attributes from template tag
