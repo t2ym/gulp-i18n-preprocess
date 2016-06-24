@@ -115,7 +115,10 @@ var s = function (name, baseName, extension) {
 
 var attributesRepository_standard = {
   'input': {
-    'placeholder': true
+    "placeholder": true,
+    "value": {
+      "type=button|submit": true
+    }
   },
   'any-elements': {
     'title': true,
