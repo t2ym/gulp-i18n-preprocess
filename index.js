@@ -114,6 +114,7 @@ module.exports = function(options) {
 
     function isLocalizableAttribute(element, attr) {
       var tagName = element.nodeName.toLowerCase();
+      attr = attr.replace(/\$$/, '');
       if (attributesRepository['any-elements'] &&
           attributesRepository['any-elements'][attr]) {
         return attributesRepository['any-elements'][attr];
