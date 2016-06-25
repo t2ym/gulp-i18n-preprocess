@@ -431,7 +431,7 @@ module.exports = function(options) {
           if (text.length === 0) {
             // skip empty value attribute
           }
-          else if (text.match(/^{{.*}}$/) || text.match(/^\[\[.*\]\]$/)) {
+          else if (text.match(/^{{[^{}]*}}$/) || text.match(/^\[\[[^\[\]]*\]\]$/)) {
             // skip annotation attribute
           }
           else if (text.replace(/\n/g, ' ').match(/^{.*}$/g) || text.replace(/\n/g, ' ').match(/^\[.*\]$/g)) {
@@ -460,6 +460,68 @@ module.exports = function(options) {
             catch (e) {
               // invalid JSON
               console.warn(e, 'Invalid JSON at <' + name + ' ' + attribute.name + '> with value = ' + text);
+            }
+          }
+          else if (text.match(/{{[^{}]{1,}}}|\[\[[^\[\]]{1,}\]\]/)) {
+            // compound binding attribute
+            // Parameterized:
+            //   e.g., attr="Compound binding attribute has [[bound.value]] {{parameters}} in the value string"
+            //   replaced as "{{i18nFormat(attrId.0,bound.value,parameters)}}"
+            //   extracted as [ "Compound binding attribute has {1} {2} in the value string", "[[bound.value]]", "{{parameters}}" ]
+            // Concatenated: (Parameters with functions cannot be reordered in translation)
+            //   e.g., attr2="Compound binding attribute has [[f1(bound.value)]] {{f2(parameters)}} in the value string"
+            //   replaced as "{{attrId.0}}[[f1(bound.value)]]{{attrId.2}}{{f2(parameters)}}{{attrId.4}}"
+            //   extracted as [ "Compound binding attribute has ", "[[f1(bound.value)]]", " ", "{{f2(parameters)}}", " in the value string" ]
+            var parsed = text.match(/([^{}\[\]]{1,})|({{[^{}]{1,}}})|(\[\[[^\[\]]{1,}\]\])/g);
+            var parameterized;
+            var processed;
+            var n;
+            messageId = generateMessageId(path, id);
+            attrId = ['model', messageId, attribute.name].join('.');
+            if (text.match(/\)}}|\)\]\]/)) { // check for function parameter
+              // Concatenate
+              setBundleValue(bundle, attrId, parsed);
+              if (replacingText) {
+                if (isLocalizable === '$') {
+                  attribute.name = attribute.name + '$';
+                }
+                processed = '';
+                for (n = 0; n < parsed.length; n++) {
+                  if (parsed[n].match(/^{{[^{}]{1,}}}|\[\[[^\[\]]{1,}\]\]$/)) {
+                    processed += parsed[n];
+                  }
+                  else {
+                    processed += '{{' + attrId + '.' + n + '}}';
+                  }
+                }
+                attribute.value = processed;
+              }
+            }
+            else {
+              // Parameterize
+              parameterized = [ '' ];
+              while (parsed.length) {
+                if (parsed[0].match(/^{{[^{}]{1,}}}|\[\[[^\[\]]{1,}\]\]$/)) {
+                  parameterized.push(parsed[0]);
+                  parameterized[0] += '{' + (parameterized.length - 1) + '}';
+                }
+                else {
+                  parameterized[0] += parsed[0];
+                }
+                parsed.shift();
+              }
+              setBundleValue(bundle, attrId, parameterized);
+              if (replacingText) {
+                if (isLocalizable === '$') {
+                  attribute.name = attribute.name + '$';
+                }
+                processed = '{{i18nFormat(' + attrId + '.0';
+                for (n = 1; n < parameterized.length; n++) {
+                  processed += ',' + parameterized[n].replace(/^[{\[][{\[](.*)[}\]][}\]]$/, '$1');
+                }
+                processed += ')}}';
+                attribute.value = processed;
+              }
             }
           }
           else {
