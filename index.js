@@ -114,7 +114,7 @@ module.exports = function(options) {
 
     function isLocalizableAttribute(element, attr) {
       var tagName = element.nodeName.toLowerCase();
-      //attr = attr.replace(/\$$/, '');
+      attr = attr.replace(/\$$/, '');
       if (attributesRepository['any-elements'] &&
           attributesRepository['any-elements'][attr]) {
         return attributesRepository['any-elements'][attr];
@@ -483,9 +483,6 @@ module.exports = function(options) {
               // Concatenate
               setBundleValue(bundle, attrId, parsed);
               if (replacingText) {
-                if (isLocalizable === '$') {
-                  attribute.name = attribute.name + '$';
-                }
                 processed = '';
                 for (n = 0; n < parsed.length; n++) {
                   if (parsed[n].match(/^{{[^{}]{1,}}}|\[\[[^\[\]]{1,}\]\]$/)) {
@@ -494,6 +491,9 @@ module.exports = function(options) {
                   else {
                     processed += '{{' + attrId + '.' + n + '}}';
                   }
+                }
+                if (isLocalizable === '$' && !attribute.name.match(/\$$/)) {
+                  attribute.name = attribute.name + '$';
                 }
                 attribute.value = processed;
               }
@@ -513,14 +513,14 @@ module.exports = function(options) {
               }
               setBundleValue(bundle, attrId, parameterized);
               if (replacingText) {
-                if (isLocalizable === '$') {
-                  attribute.name = attribute.name + '$';
-                }
                 processed = '{{i18nFormat(' + attrId + '.0';
                 for (n = 1; n < parameterized.length; n++) {
                   processed += ',' + parameterized[n].replace(/^[{\[][{\[](.*)[}\]][}\]]$/, '$1');
                 }
                 processed += ')}}';
+                if (isLocalizable === '$' && !attribute.name.match(/\$$/)) {
+                  attribute.name = attribute.name + '$';
+                }
                 attribute.value = processed;
               }
             }
@@ -531,7 +531,7 @@ module.exports = function(options) {
             attrId = ['model', messageId, attribute.name].join('.');
             setBundleValue(bundle, attrId, text);
             if (replacingText) {
-              if (isLocalizable === '$') {
+              if (isLocalizable === '$' && !attribute.name.match(/\$$/)) {
                 attribute.name = attribute.name + '$';
               }
               attribute.value = '{{' + attrId + '}}';
