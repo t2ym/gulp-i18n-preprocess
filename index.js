@@ -477,7 +477,7 @@ module.exports = function(options) {
             var processed;
             var n;
             messageId = generateMessageId(path, id);
-            attrId = ['model', messageId, attribute.name].join('.');
+            attrId = ['model', messageId, attribute.name.replace(/\$$/, '')].join('.');
             if (text.match(/\)}}|\)\]\]/)) { // check for function parameter
               // Concatenate
               setBundleValue(bundle, attrId, parsed);
