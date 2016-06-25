@@ -170,6 +170,7 @@ var attributesRepository_custom = p({
     'custom-text-attr2': true,
     'custom-text-attr3': true,
     'custom-text-attr4': '$',
+    'custom-text-attr5': '$',
     'i18n-target': {
       'boolean-attr': {
         '!boolean-attr2': {
