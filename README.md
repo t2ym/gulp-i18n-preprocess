@@ -291,7 +291,7 @@ Outputs are ready to commit in the repository
 ### Integrate with polymer-cli project templates (highly experimental)
 
 #### Note:
-  - As of [`polymer-cli 0.8.0`](https://github.com/Polymer/polymer-cli), `polymer` command and the project templates are pre-release and subject to change including the private API `userTransformers` on which this integration works.
+  - As of [`Polymer CLI 0.11.1`](https://github.com/Polymer/polymer-cli), `polymer` command and the project templates are pre-release and subject to change including the private API `userTransformers` on which this integration works.
 
 #### Set up `package.json` and the dependent packages of the following `guilfile.js`
 
