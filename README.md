@@ -293,7 +293,7 @@ Outputs are ready to commit in the repository
 #### Note:
   - As of [`Polymer CLI 0.11.1`](https://github.com/Polymer/polymer-cli), `polymer` command and the project templates are pre-release and subject to change including the private API `userTransformers` on which this integration works.
 
-#### Set up `package.json` and the dependent packages of the following `guilfile.js`
+#### Set up `package.json` and the dependent packages of the following `gulpfile.js`
 
 ```sh
     npm init # if package.json is missing
@@ -436,13 +436,14 @@ Outputs are ready to commit in the repository
       var srcLanguage = 'en';
       var promises = [];
       var self = this;
+      var lang;
       while (bundleFiles.length > 0) {
         file = bundleFiles.shift();
         if (!gulpmatch(file, [ '**/bundle.json', '**/locales/bundle.*.json', '**/xliff/bundle.*.xlf' ])) {
           this.push(file);
         }
       }
-      for (var lang in bundles) {
+      for (lang in bundles) {
         bundles[lang].bundle = true;
         this.push(new gutil.File({
           cwd: cwd,
@@ -452,7 +453,7 @@ Outputs are ready to commit in the repository
           contents: new Buffer(JSONstringify(bundles[lang], null, 2))
         }));
       }
-      for (var lang in bundles) {
+      for (lang in bundles) {
         if (lang) {
           (function (destLanguage) {
             promises.push(new Promise(function (resolve, reject) {
