@@ -435,7 +435,9 @@ module.exports = function(options) {
           else if (text.match(/^{{[^{}]*}}$/) || text.match(/^\[\[[^\[\]]*\]\]$/)) {
             // skip annotation attribute
           }
-          else if (text.replace(/\n/g, ' ').match(/^{.*}$/g) || text.replace(/\n/g, ' ').match(/^\[.*\]$/g)) {
+          else if (text.replace(/\n/g, ' ').match(/^{.*}|\[.*\]$/g) &&
+                  !text.match(/^{{[^{}]*}}|\[\[[^\[\]]*\]\]/) &&
+                  !text.match(/{{[^{}]*}}|\[\[[^\[\]]*\]\]$/)) {
             // generate message id
             messageId = generateMessageId(path, id);
             try {
