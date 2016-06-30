@@ -292,7 +292,7 @@ Outputs are ready to commit in the repository
 
 #### Note:
   - As of [`Polymer CLI 0.12.0`](https://github.com/Polymer/polymer-cli), `polymer` command and the project templates are pre-release and subject to change including the private API `userTransformers` on which this integration works.
-  - As of ['polymer-build 0.1.0'](https://github.com/Polymer/polymer-build), `polymer-build` library is pre-release and subject to change.
+  - As of [`polymer-build 0.1.0`](https://github.com/Polymer/polymer-build), `polymer-build` library is pre-release and subject to change.
 
 #### Set up `package.json` and the dependent packages of the following `gulpfile.js`
 
