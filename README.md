@@ -288,10 +288,11 @@ Outputs are ready to commit in the repository
     });
 ```
 
-### Integrate with polymer-cli project templates (highly experimental)
+### Integrate with Polymer CLI project templates or `polymer-build` library (highly experimental)
 
 #### Note:
-  - As of [`Polymer CLI 0.11.1`](https://github.com/Polymer/polymer-cli), `polymer` command and the project templates are pre-release and subject to change including the private API `userTransformers` on which this integration works.
+  - As of [`Polymer CLI 0.12.0`](https://github.com/Polymer/polymer-cli), `polymer` command and the project templates are pre-release and subject to change including the private API `userTransformers` on which this integration works.
+  - As of ['polymer-build 0.1.0'](https://github.com/Polymer/polymer-build), `polymer-build` library is pre-release and subject to change.
 
 #### Set up `package.json` and the dependent packages of the following `gulpfile.js`
 
@@ -300,7 +301,7 @@ Outputs are ready to commit in the repository
     npm install --save-dev gulp gulp-debug gulp-grep-contents \
       gulp-i18n-add-locales gulp-i18n-leverage gulp-i18n-preprocess \
       gulp-if gulp-ignore gulp-match gulp-merge gulp-size gulp-sort gulp-util \
-      json-stringify-safe strip-bom through2 xliff-conv
+      json-stringify-safe strip-bom through2 xliff-conv polymer-build plylog merge-stream
 ```
 
 #### User Transformers:
@@ -318,9 +319,12 @@ Outputs are ready to commit in the repository
 
 #### Gulp task:
   - `gulp locales --targets="{space separated list of target locales}"`
+  - `gulp default` - Build with `polymer-build` library for `gulp` other than Polymer CLI
 
 #### [gulpfile.js](https://gist.github.com/t2ym/c37990e422d4a19774ba1d749510c1b8#file-gulpfile-js): Put it in the root folder of the project
 ```javascript
+    'use strict';
+
     var gulp = require('gulp');
     var gutil = require('gulp-util');
     var debug = require('gulp-debug');
@@ -340,6 +344,16 @@ Outputs are ready to commit in the repository
     var XliffConv = require('xliff-conv');
     var i18nAddLocales = require('gulp-i18n-add-locales');
 
+    const logging = require('plylog');
+    const mergeStream = require('merge-stream');
+
+    const polymer = require('polymer-build');
+    //const optimize = require('polymer-build/lib/optimize').optimize;
+    //const precache = require('polymer-build/lib/sw-precache');
+    const PolymerProject = polymer.PolymerProject;
+    const fork = polymer.forkStream;
+    const polymerConfig = require('./polymer.json');
+
     // Global object to store localizable attributes repository
     var attributesRepository = {};
 
@@ -349,6 +363,8 @@ Outputs are ready to commit in the repository
 
     var title = 'I18N transform';
     var tmpDir = '.tmp';
+
+    var xliffOptions = {};
 
     // Scan HTMLs and construct localizable attributes repository
     var scan = gulpif('*.html', i18nPreprocess({
@@ -388,7 +404,7 @@ Outputs are ready to commit in the repository
       var match;
       var file;
       var bundleFileMap = {};
-      var xliffConv = new XliffConv();
+      var xliffConv = new XliffConv(xliffOptions);
       while (unbundleFiles.length > 0) {
         file = unbundleFiles.shift();
         if (path.basename(file.path).match(/^bundle[.]json$/)) {
@@ -432,7 +448,7 @@ Outputs are ready to commit in the repository
       var file;
       var cwd = bundleFiles[0].cwd;
       var base = bundleFiles[0].base;
-      var xliffConv = new XliffConv();
+      var xliffConv = new XliffConv(xliffOptions);
       var srcLanguage = 'en';
       var promises = [];
       var self = this;
@@ -516,6 +532,57 @@ Outputs are ready to commit in the repository
         size({ title: title })
       ]
     };
+
+    //logging.setVerbose();
+
+    let project = new PolymerProject({
+      root: process.cwd(),
+      entrypoint: polymerConfig.entrypoint,
+      shell: polymerConfig.shell
+    });
+
+    gulp.task('default', () => {
+      // process source files in the project
+      let sources = project.sources()
+        .pipe(project.splitHtml())
+        // I18N processes
+        .pipe(scan)
+        .pipe(basenameSort)
+        .pipe(dropDefaultJSON)
+        .pipe(preprocess)
+        .pipe(tmpJSON)
+        .pipe(importXliff)
+        .pipe(leverage)
+        .pipe(exportXliff)
+        .pipe(feedback)
+        .pipe(debug({ title: title }))
+        .pipe(size({ title: title }))
+        // add compilers or optimizers here!
+        .pipe(project.rejoinHtml());
+
+      // process dependencies
+      let dependencies = project.dependencies()
+        .pipe(project.splitHtml())
+        // add compilers or optimizers here!
+        .pipe(project.rejoinHtml());
+
+      // merge the source and dependencies streams to we can analyze the project
+      let allFiles = mergeStream(sources, dependencies)
+        .pipe(project.analyze);
+
+      // fork the stream in case downstream transformers mutate the files
+      // this fork will vulcanize the project
+      let bundled = fork(allFiles)
+        .pipe(project.bundle)
+        // write to the bundled folder
+        .pipe(gulp.dest('build/bundled'));
+
+      let unbundled = fork(allFiles)
+        // write to the unbundled folder
+        .pipe(gulp.dest('build/unbundled'));
+
+      return mergeStream(bundled, unbundled);
+    });
 ```
 
 ## API
