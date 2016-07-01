@@ -317,7 +317,7 @@ Outputs are ready to commit in the repository
   - debug - Show the list of processed files including untouched ones
   - size - Show the total size of the processed files
 
-#### Gulp task:
+#### Gulp tasks:
   - `gulp locales --targets="{space separated list of target locales}"`
   - `gulp default` - Build with `polymer-build` library for `gulp` other than Polymer CLI
 
@@ -347,12 +347,7 @@ Outputs are ready to commit in the repository
     const logging = require('plylog');
     const mergeStream = require('merge-stream');
 
-    const polymer = require('polymer-build');
-    //const optimize = require('polymer-build/lib/optimize').optimize;
-    //const precache = require('polymer-build/lib/sw-precache');
-    const PolymerProject = polymer.PolymerProject;
-    const fork = polymer.forkStream;
-    const polymerConfig = require('./polymer.json');
+    const isPolymerCLI = global._babelPolyfill;
 
     // Global object to store localizable attributes repository
     var attributesRepository = {};
@@ -517,72 +512,82 @@ Outputs are ready to commit in the repository
         .pipe(debug({ title: 'Add locales:'}))
     });
 
-    module.exports = {
-      transformers: [
-        scan,
-        basenameSort,
-        dropDefaultJSON,
-        preprocess,
-        tmpJSON,
-        importXliff,
-        leverage,
-        exportXliff,
-        feedback,
-        debug({ title: title }),
-        size({ title: title })
-      ]
-    };
+    if (isPolymerCLI) {
+      module.exports = {
+        transformers: [
+          scan,
+          basenameSort,
+          dropDefaultJSON,
+          preprocess,
+          tmpJSON,
+          importXliff,
+          leverage,
+          exportXliff,
+          feedback,
+          debug({ title: title }),
+          size({ title: title })
+        ]
+      };
+    }
+    else {
+      const polymer = require('polymer-build');
+      //const optimize = require('polymer-build/lib/optimize').optimize;
+      //const precache = require('polymer-build/lib/sw-precache');
+      const PolymerProject = polymer.PolymerProject;
+      const fork = polymer.forkStream;
+      const polymerConfig = require('./polymer.json');
 
-    //logging.setVerbose();
+      //logging.setVerbose();
 
-    let project = new PolymerProject({
-      root: process.cwd(),
-      entrypoint: polymerConfig.entrypoint,
-      shell: polymerConfig.shell
-    });
+      let project = new PolymerProject({
+        root: process.cwd(),
+        entrypoint: polymerConfig.entrypoint,
+        shell: polymerConfig.shell
+      });
 
-    gulp.task('default', () => {
-      // process source files in the project
-      let sources = project.sources()
-        .pipe(project.splitHtml())
-        // I18N processes
-        .pipe(scan)
-        .pipe(basenameSort)
-        .pipe(dropDefaultJSON)
-        .pipe(preprocess)
-        .pipe(tmpJSON)
-        .pipe(importXliff)
-        .pipe(leverage)
-        .pipe(exportXliff)
-        .pipe(feedback)
-        .pipe(debug({ title: title }))
-        .pipe(size({ title: title }))
-        // add compilers or optimizers here!
-        .pipe(project.rejoinHtml());
+      gulp.task('default', () => {
+        // process source files in the project
+        let sources = project.sources()
+          .pipe(project.splitHtml())
+          // I18N processes
+          .pipe(scan)
+          .pipe(basenameSort)
+          .pipe(dropDefaultJSON)
+          .pipe(preprocess)
+          .pipe(tmpJSON)
+          .pipe(importXliff)
+          .pipe(leverage)
+          .pipe(exportXliff)
+          .pipe(feedback)
+          .pipe(debug({ title: title }))
+          .pipe(size({ title: title }))
+          // add compilers or optimizers here!
+          .pipe(project.rejoinHtml());
 
-      // process dependencies
-      let dependencies = project.dependencies()
-        .pipe(project.splitHtml())
-        // add compilers or optimizers here!
-        .pipe(project.rejoinHtml());
+        // process dependencies
+        let dependencies = project.dependencies()
+          .pipe(project.splitHtml())
+          // add compilers or optimizers here!
+          .pipe(project.rejoinHtml());
 
-      // merge the source and dependencies streams to we can analyze the project
-      let allFiles = mergeStream(sources, dependencies)
-        .pipe(project.analyze);
+        // merge the source and dependencies streams to we can analyze the project
+        let allFiles = mergeStream(sources, dependencies)
+          .pipe(project.analyze);
 
-      // fork the stream in case downstream transformers mutate the files
-      // this fork will vulcanize the project
-      let bundled = fork(allFiles)
-        .pipe(project.bundle)
-        // write to the bundled folder
-        .pipe(gulp.dest('build/bundled'));
+        // fork the stream in case downstream transformers mutate the files
+        // this fork will vulcanize the project
+        let bundled = fork(allFiles)
+          .pipe(project.bundle)
+          // write to the bundled folder
+          .pipe(gulp.dest('build/bundled'));
 
-      let unbundled = fork(allFiles)
-        // write to the unbundled folder
-        .pipe(gulp.dest('build/unbundled'));
+        let unbundled = fork(allFiles)
+          // write to the unbundled folder
+          .pipe(gulp.dest('build/unbundled'));
 
-      return mergeStream(bundled, unbundled);
-    });
+        return mergeStream(bundled, unbundled);
+      });
+    }
 ```
 
 ## API
