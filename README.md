@@ -288,11 +288,11 @@ Outputs are ready to commit in the repository
     });
 ```
 
-### Integrate with Polymer CLI project templates and `polymer-build` library (highly experimental)
+### Integrate with Polymer CLI project templates by `polymer-build` library (highly experimental)
 
-#### Note:
-  - As of [`Polymer CLI 0.12.0`](https://github.com/Polymer/polymer-cli), `polymer` command and the project templates are pre-release and subject to change including the private API `userTransformers` on which this integration works.
-  - As of [`polymer-build 0.1.0`](https://github.com/Polymer/polymer-build), `polymer-build` library is pre-release and subject to change.
+#### Notes:
+  - As of [`polymer-build 0.4.0`](https://github.com/Polymer/polymer-build), `polymer-build` library is pre-release and subject to change.
+  - As of [`Polymer CLI 0.13.0`](https://github.com/Polymer/polymer-cli), the private API `userTransformers` is deprecated and no longer available.
 
 #### Set up `package.json` and the dependent packages of the following `gulpfile.js`
 
@@ -304,7 +304,7 @@ Outputs are ready to commit in the repository
       json-stringify-safe strip-bom through2 xliff-conv polymer-build plylog merge-stream
 ```
 
-#### User Transformers:
+#### Gulp Filters:
   - scan - Scan HTMLs and construct localizable attributes repository
   - basenameSort - Sort source files according to their base names; Bundle files come first.
   - dropDefaultJSON - Drop default JSON files to avoid overwriting new ones 
@@ -317,9 +317,9 @@ Outputs are ready to commit in the repository
   - debug - Show the list of processed files including untouched ones
   - size - Show the total size of the processed files
 
-#### Gulp tasks:
+#### Gulp Tasks:
   - `gulp locales --targets="{space separated list of target locales}"`
-  - `gulp default` - Build with `polymer-build` library for `gulp` other than Polymer CLI
+  - `gulp default` - Build with `polymer-build` library for `gulp`
 
 #### [gulpfile.js](https://gist.github.com/t2ym/c37990e422d4a19774ba1d749510c1b8#file-gulpfile-js): Put it in the root folder of the project
 ```javascript
