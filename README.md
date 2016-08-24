@@ -608,54 +608,58 @@ Outputs are ready to commit in the repository
 
 ## Quick Tour
 
-### Quick demo deployment
+### Quick deployment of [`polymer-starter-kit-i18n`](https://github.com/t2ym/polymer-starter-kit-i18n)
 
 ```
     git clone https://github.com/t2ym/polymer-starter-kit-i18n.git
     cd polymer-starter-kit-i18n
-    npm install -g gulp bower # if missing
+    npm install -g polymer-cli # if missing
     npm install && bower install
-    # Development build with scan/preprocess/leverage/bundle/feedback tasks
-    gulp --dev
-    # Run-time I18N demo on http://localhost:5000
-    gulp serve
-    # Build-time I18N demo on http://localhost:5001
-    gulp serve:dist --dev
+    # Add Locales (gulp 4 required)
+    ./node_modules/.bin/gulp locales --targets="de es fr ja zh-Hans"
+    # Build (gulp 4 required)
+    ./node_modules/.bin/gulp
+    # Translate XLIFF ./xliff/bundle.*.xlf
+    # Build and Merge Translation
+    ./node_modules/.bin/gulp
+    # App with Run-time I18N on http://localhost:8080
+    polymer serve
+    # App with Build-time I18N on http://localhost:8080
+    polymer serve build/bundled
 ```
 
-### Change language on the demo
+### Change language
 
 ##### 1. Press F12 to open debugger console on the browser
 
 ##### 2. Navigate to the elements or DOM tab in the debugger
 
-##### 3. Change `lang` attribute of `html` element from "en" to "ja" or "fr"
+##### 3. Change `lang` attribute of `html` element from "en" to other locales such as "ja"
 
 ```
     <html lang="ja">
 ```
 
-### Update UI strings on the demo
+### Update UI strings
 
 ##### 1. Change any UI strings in the following HTMLs
 
 ```
-    polymer-starter-kit-i18n/app/index.html
-                                /elements/my-greeting/my-greeting.html
-                                /elements/my-list/my-list.html
+    polymer-starter-kit-i18n/src/*.html
 ```
 
 ##### 2. Merge changes into JSON files
 
 ```
     cd polymer-starter-kit-i18n
-    gulp --dev
+    # gulp 4 required
+    ./node_modules/.bin/gulp
 ```
 
 ##### 3. Check diffs
 
 ```
-    git diff app
+    git diff
 ```
 
 ## License
