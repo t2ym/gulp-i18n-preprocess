@@ -652,8 +652,7 @@ Outputs are ready to commit in the repository
 
 ```
     cd polymer-starter-kit-i18n
-    # gulp 4 required
-    ./node_modules/.bin/gulp
+    npm run build
 ```
 
 ##### 3. Check diffs
