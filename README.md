@@ -615,13 +615,13 @@ Outputs are ready to commit in the repository
     cd polymer-starter-kit-i18n
     npm install -g polymer-cli # if missing
     npm install && bower install
-    # Add Locales (gulp 4 required)
-    ./node_modules/.bin/gulp locales --targets="de es fr ja zh-Hans"
-    # Build (gulp 4 required)
-    ./node_modules/.bin/gulp
+    # Add Locales
+    npm run build locales -- --targets="de es fr ja zh-Hans"
+    # Build
+    npm run build
     # Translate XLIFF ./xliff/bundle.*.xlf
     # Build and Merge Translation
-    ./node_modules/.bin/gulp
+    npm run build
     # App with Run-time I18N on http://localhost:8080
     polymer serve
     # App with Build-time I18N on http://localhost:8080
