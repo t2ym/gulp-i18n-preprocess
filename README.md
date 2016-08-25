@@ -611,10 +611,11 @@ Outputs are ready to commit in the repository
 ### Quick deployment of [`polymer-starter-kit-i18n`](https://github.com/t2ym/polymer-starter-kit-i18n)
 
 ```
-    git clone https://github.com/t2ym/polymer-starter-kit-i18n.git
-    cd polymer-starter-kit-i18n
-    npm install -g polymer-cli # if missing
-    npm install && bower install
+    npm install -g polymer-cli
+    npm install -g generator-polymer-init-i18n-starter-kit
+    mkdir i18n-starter-kit
+    cd i18n-starter-kit
+    polymer init i18n-starter-kit
     # Add Locales
     npm run build locales -- --targets="de es fr ja zh-Hans"
     # Build
@@ -636,7 +637,7 @@ Outputs are ready to commit in the repository
 
 ##### 3. Change `lang` attribute of `html` element from "en" to other locales such as "ja"
 
-```
+```html
     <html lang="ja">
 ```
 
