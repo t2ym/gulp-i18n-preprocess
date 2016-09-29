@@ -310,7 +310,7 @@ module.exports = function(options) {
         if (dom5.predicates.hasTagName('link')(node) &&
             dom5.getAttribute(node, 'rel') === 'import') {
           var href = dom5.getAttribute(node, 'href');
-          if (href.indexOf('/i18n-behavior.html') >= 0) {
+          if (href.indexOf('/i18n-behavior.html') >= 0 || href.indexOf('/i18n-element.html') >= 0) {
             return true;
           }
         }
