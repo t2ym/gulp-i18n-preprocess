@@ -1,6 +1,6 @@
 {
   "name": "gulp-i18n-preprocess",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "Preprocess Polymer templates and extract UI strings to JSON for build-time I18N with i18n-behavior",
   "main": "index.js",
   "scripts": {
