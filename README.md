@@ -599,12 +599,13 @@ Outputs are ready to commit in the repository
 - replacingText: Boolean, default: false - If true, UI texts are replaced with {{annotations}}
 - jsonSpace: Number, default: 2 - JSON stringification parameter for formatting
 - srcPath: String, default: 'app' - Path to source root
-- force: Boolean, default: false - Force preprocessing even if i18n-behavior.html is not imported
+- force: Boolean, default: false - Force preprocessing even if `i18n-behavior.html` or `i18n-element.html` is not imported
 - dropHtml: Boolean, default: false - If true, drop the preprocessed HTML for output
 - dropJson: Boolean, default: false - If true, drop the extracted JSON files for output
 - constructAttributesRepository: Boolean, default: false - If true, construct localizable attributes repository
 - attributesRepository: Object, default: {} - Input/Output - attributes respository object
 - attributesRepositoryPath: String, default: null - Path to bower_components/i18n-behavior/i18n-attr-repo.html
+- targetVersion: Number, default: 0 - Values: 1 for Polymer 1.x, 2 for Polymer 2.x, 0 for automatic detection by `i18n-behavior.html` or `i18n-element.html` import
 
 ## Quick Tour
 
