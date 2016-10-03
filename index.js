@@ -53,7 +53,7 @@ module.exports = function(options) {
             var contents = fs.readFileSync(attributesRepositoryPath[i], 'utf8');
             var document = dom5.parse(contents);
             var topTemplate = dom5.query(document, function (node) {
-              if (dom5.predicates.hasTagName('dom-module')(node) &&
+              if ((dom5.predicates.hasTagName('dom-module')(node) || dom5.predicates.hasTagName('template')(node)) &&
                   dom5.getAttribute(node, 'id') === 'i18n-attr-repo') {
                 return true;
               }
