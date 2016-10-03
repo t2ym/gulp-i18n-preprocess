@@ -28,6 +28,9 @@ module.exports = function(options) {
     var constructAttributesRepository = options ? options.constructAttributesRepository : false;
     var attributesRepositoryPath = options ? options.attributesRepositoryPath : null;
     var attributesRepository = options ? options.attributesRepository : {};
+    var targetVersion = (options && options.targetVersion) ? options.targetVersion : 0;
+    var i18nBehaviorLink = false;
+    var i18nElementLink = false;
 
     if (options && !attributesRepository) {
       options.attributesRepository = attributesRepository;
@@ -297,6 +300,34 @@ module.exports = function(options) {
       }
     }
 
+    function paramAttribute() {
+      var isSlot = false;
+      switch (targetVersion) {
+      default:
+      case 0:
+        isSlot = i18nElementLink;
+        break;
+      case 1:
+        break;
+      case 2:
+        isSlot = true;
+        break;
+      }
+      return isSlot ? 'slot' : 'param';
+    }
+
+    function isLegacy() {
+      var result = false;
+      switch (targetVersion) {
+      default:
+        break;
+      case 2:
+        result = !i18nElementLink && i18nBehaviorLink;
+        break;
+      }
+      return result;
+    }
+
     function constructMessageBundle(file, contents, bundles, status) {
       var result;
       var document = dom5.parse(contents);
@@ -306,11 +337,15 @@ module.exports = function(options) {
       var linkLocalizable;
       var i;
 
+      i18nBehaviorLink = false;
+      i18nElementLink = false;
       linkLocalizable = dom5.query(document, function (node) {
         if (dom5.predicates.hasTagName('link')(node) &&
             dom5.getAttribute(node, 'rel') === 'import') {
           var href = dom5.getAttribute(node, 'href');
-          if (href.indexOf('/i18n-behavior.html') >= 0 || href.indexOf('/i18n-element.html') >= 0) {
+          i18nBehaviorLink = href.indexOf('/i18n-behavior.html') >= 0;
+          i18nElementLink = href.indexOf('/i18n-element.html') >= 0;
+          if (i18nBehaviorLink || i18nElementLink) {
             return true;
           }
         }
@@ -335,6 +370,7 @@ module.exports = function(options) {
             case 'head':
             case 'html':
             case 'i18n-attr-repo':
+            case 'i18n-dom-bind':
               return true;
             default:
               return false;
@@ -376,6 +412,13 @@ module.exports = function(options) {
           }
           else {
             traverseTemplateTree(templates[i], path, bundle, 0);
+            if (isLegacy()) {
+              if (templates[i].parentNode &&
+                  templates[i].parentNode.tagName &&
+                  templates[i].parentNode.tagName.toLowerCase() === 'dom-module') {
+                dom5.setAttribute(templates[i].parentNode, 'legacy', '');
+              }
+            }
             //console.log(JSONstringify(bundle, null, 2));
             bundles[moduleId] = bundle;
             if (replacingText) {
@@ -614,8 +657,8 @@ module.exports = function(options) {
             else {
               // param element
               // TODO: handle localization of param nodes and attributes
-              if (!dom5.hasAttribute(param, 'param')) {
-                dom5.setAttribute(param, 'param', '' + n);
+              if (!dom5.hasAttribute(param, paramAttribute())) {
+                dom5.setAttribute(param, paramAttribute(), '' + n);
               }
               if (param.nodeName.toLowerCase() === 'i18n-number') {
                 if (!dom5.hasAttribute(param, 'lang')) {
@@ -977,7 +1020,7 @@ module.exports = function(options) {
                       else {
                         prev.text.push('<' + current.node.nodeName.toLowerCase() + '>');
                       }
-                      dom5.setAttribute(current.node, 'param', n.toString());
+                      dom5.setAttribute(current.node, paramAttribute(), n.toString());
                       prev.params.push(current.templateNode || current.node);
                     }
                     else if (dom5.isTextNode(current.node) &&
@@ -1006,7 +1049,7 @@ module.exports = function(options) {
                         dom5.setTextContent(current.node, '{{text.' + messageId + '.' + n + '}}');
                       }
                       span = dom5.constructors.element('span');
-                      dom5.setAttribute(span, 'param', n.toString());
+                      dom5.setAttribute(span, paramAttribute(), n.toString());
                       dom5.remove(current.node);
                       dom5.append(span, current.node);
                       dom5.append(current.templateNode.childNodes[0], span);
@@ -1097,7 +1140,7 @@ module.exports = function(options) {
                     traverseAttributes(current.node, path, bundle);
                     path.pop();
                     prev.text.push(dom5.getTextContent(current.node));
-                    dom5.setAttribute(current.node, 'param', n.toString());
+                    dom5.setAttribute(current.node, paramAttribute(), n.toString());
                     prev.params.push(current.node);
                   }
                 }
