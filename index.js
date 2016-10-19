@@ -398,7 +398,7 @@ module.exports = function(options) {
           }
           if (moduleId) {
             var dirname = file.dirname || file.base.substr(0, -1);
-            var assetpath = dirname.substr(file.cwd.length + srcPath.length + 1) + '/';
+            var assetpath = dom5.getAttribute(templates[i], 'is') === 'i18n-dom-bind' ? dirname.substr(file.cwd.length + srcPath.length + 1) + '/' : '.';
             //console.log('assetpath = ' + assetpath);
             dom5.setAttribute(templates[i], 'assetpath', assetpath);
           }
