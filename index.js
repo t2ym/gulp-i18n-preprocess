@@ -5,6 +5,7 @@ Copyright (c) 2016, Tetsuya Mori <t2y3141592@gmail.com>. All rights reserved.
 'use strict';
 
 var path = require('path');
+var pathAPI = path;
 var fs = require('fs');
 var gutil = require('gulp-util');
 var through = require('through2');
@@ -397,10 +398,12 @@ module.exports = function(options) {
             continue;
           }
           if (moduleId) {
-            var dirname = file.dirname || file.base.substr(0, -1);
-            var assetpath = dom5.getAttribute(templates[i], 'is') === 'i18n-dom-bind' ? dirname.substr(file.cwd.length + srcPath.length + 1) + '/' : '.';
+            var dirname = pathAPI.dirname(file.path) || file.base.substr(0, -1);
+            var assetpath = dom5.getAttribute(templates[i], 'is') === 'i18n-dom-bind' || targetVersion >= 2
+                              ? dirname.substr(pathAPI.join(file.cwd, srcPath).length + 1) + '/'
+                              : '.';
             //console.log('assetpath = ' + assetpath);
-            dom5.setAttribute(templates[i], 'assetpath', assetpath);
+            dom5.setAttribute(templates[i], targetVersion >= 2 ? 'basepath' : 'assetpath', assetpath);
           }
           else {
             moduleId = dom5.getAttribute(templates[i].parentNode, 'id');          
